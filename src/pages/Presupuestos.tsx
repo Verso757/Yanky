@@ -25,6 +25,8 @@ export default function Presupuestos() {
   const [montoEstimado, setMontoEstimado] = useState("");
   const [clienteNombre, setClienteNombre] = useState("");
   const [clienteTelefono, setClienteTelefono] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [fotos, setFotos] = useState<FileList | null>(null);
 
   const fetchPresupuestos = () => {
     axios.get("/api/presupuestos").then((res) => {
@@ -41,14 +43,33 @@ export default function Presupuestos() {
       alert("Placas y descripción son requeridos");
       return;
     }
+    if (isSubmitting) return;
+
+    setIsSubmitting(true);
     try {
-      await axios.post("/api/presupuestos", {
+      const res = await axios.post("/api/presupuestos", {
         placas,
         descripcionDano,
         montoEstimado: montoEstimado || "0",
         clienteNombre,
         clienteTelefono
       });
+
+      // Upload photos if any
+      if (fotos && fotos.length > 0) {
+        for (let i = 0; i < fotos.length; i++) {
+          const file = fotos[i];
+          const formData = new FormData();
+          formData.append("file", file);
+          formData.append("presupuestoId", res.data.id);
+          formData.append("descripcion", `Foto captura inicial ${i + 1}`);
+          
+          await axios.post("/api/evidencias", formData, {
+            headers: { "Content-Type": "multipart/form-data" }
+          });
+        }
+      }
+
       setIsNuevoOpen(false);
       fetchPresupuestos();
       // Limpiar
@@ -57,8 +78,11 @@ export default function Presupuestos() {
       setMontoEstimado("");
       setClienteNombre("");
       setClienteTelefono("");
+      setFotos(null);
     } catch (e) {
       alert("Error al crear presupuesto");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -160,8 +184,23 @@ export default function Presupuestos() {
                   <Input value={clienteTelefono} onChange={e=>setClienteTelefono(e.target.value)} placeholder="Ej. 55..." />
                 </div>
               </div>
-              <p className="text-xs text-slate-500 mt-2">Nota: Podrás añadir fotos y evidencias de los daños inmediatamente después de guardar el presupuesto, desde la tabla principal.</p>
-              <Button onClick={handleCreateGroup} className="w-full mt-4">Guardar Presupuesto</Button>
+              
+              <div className="pt-2 border-t font-semibold text-sm">Evidencias Iniciales (Opcional)</div>
+              <div className="space-y-2">
+                <Label>Tomar Foto o Subir Imágenes</Label>
+                <Input 
+                  type="file" 
+                  accept="image/*" 
+                  capture="environment" 
+                  multiple 
+                  onChange={(e) => setFotos(e.target.files)} 
+                />
+                <p className="text-xs text-slate-500">Puedes tomar una o múltiples fotos del vehículo ahora mismo.</p>
+              </div>
+
+              <Button onClick={handleCreateGroup} disabled={isSubmitting} className="w-full mt-4">
+                {isSubmitting ? "Guardando..." : "Guardar Presupuesto"}
+              </Button>
             </div>
           </DialogContent>
         </Dialog>
