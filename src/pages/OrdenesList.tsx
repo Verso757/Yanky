@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Plus, Search } from "lucide-react";
-import axios from "axios";
+import axios from "@/src/lib/api";
 import { format } from "date-fns";
 
 export default function OrdenesList() {

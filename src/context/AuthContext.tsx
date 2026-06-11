@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
-import axios from "axios";
+import axios from "@/src/lib/api";
 import { useNavigate } from "react-router-dom";
 
 interface User {

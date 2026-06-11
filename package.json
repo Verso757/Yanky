@@ -4,16 +4,16 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "tsx server.ts",
-    "build": "vite build && esbuild server.ts --bundle --platform=node --format=cjs --packages=external --sourcemap --outfile=dist/server.cjs",
-    "start": "node dist/server.cjs",
+    "dev": "vite",
+    "build": "vite build",
+    "start": "vite preview --port 3000 --host 0.0.0.0",
     "preview": "vite preview",
     "clean": "rm -rf dist server.js",
-    "lint": "tsc --noEmit",
-    "db:setup": "prisma db push && tsx prisma/seed.ts"
+    "lint": "tsc --noEmit"
   },
   "dependencies": {
     "@base-ui/react": "^1.5.0",
+    "@firebase/eslint-plugin-security-rules": "^0.0.2",
     "@fontsource-variable/geist": "^5.2.9",
     "@google/genai": "^2.4.0",
     "@hookform/resolvers": "^5.4.0",
@@ -34,6 +34,7 @@
     "date-fns": "^4.4.0",
     "dotenv": "^17.2.3",
     "express": "^4.21.2",
+    "firebase": "^12.14.0",
     "jsonwebtoken": "^9.0.3",
     "lucide-react": "^0.546.0",
     "motion": "^12.23.24",

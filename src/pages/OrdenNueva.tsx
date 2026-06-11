@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { ArrowLeft, Car, Contact2 } from "lucide-react";
-import axios from "axios";
+import axios from "@/src/lib/api";
 
 export default function OrdenNueva() {
   const navigate = useNavigate();

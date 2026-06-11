@@ -1,7 +1,7 @@
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Wrench, CircleDollarSign, Car, AlertTriangle, Clock } from "lucide-react";
 import { useEffect, useState } from "react";
-import axios from "axios";
+import axios from "@/src/lib/api";
 
 export default function Dashboard() {
   const [stats, setStats] = useState({

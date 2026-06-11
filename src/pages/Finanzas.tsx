@@ -3,7 +3,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { DollarSign, Plus, ArrowDown, ArrowUp, FileText } from "lucide-react";
-import axios from "axios";
+import axios from "@/src/lib/api";
 import { format } from "date-fns";
 
 export default function Finanzas() {

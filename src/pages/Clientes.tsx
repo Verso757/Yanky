@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Plus, Search, Car, User, Phone, Mail } from "lucide-react";
-import axios from "axios";
+import axios from "@/src/lib/api";
 
 export default function Clientes() {
   const [clientes, setClientes] = useState<any[]>([]);

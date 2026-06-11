@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { ShieldAlert, CheckCircle2 } from "lucide-react";
-import axios from "axios";
+import axios from "@/src/lib/api";
 import { format, differenceInDays } from "date-fns";
 
 export default function Garantias() {

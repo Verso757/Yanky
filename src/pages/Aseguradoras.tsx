@@ -3,7 +3,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Shield, Phone, Mail, FileText } from "lucide-react";
-import axios from "axios";
+import axios from "@/src/lib/api";
 
 export default function Aseguradoras() {
   const [aseguradoras, setAseguradoras] = useState<any[]>([]);

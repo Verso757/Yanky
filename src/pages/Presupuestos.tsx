@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plus, Search, FileSignature, CheckCircle, XCircle, Camera } from "lucide-react";
-import axios from "axios";
+import axios from "@/src/lib/api";
 import { format } from "date-fns";
 import { useNavigate } from "react-router-dom";
 import EvidenciasGallery from "@/components/EvidenciasGallery";
