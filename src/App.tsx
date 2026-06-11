@@ -4,7 +4,7 @@
  */
 
 import { BrowserRouter as Router, Routes, Route, Link, useLocation } from "react-router-dom";
-import { LayoutDashboard, Wrench, Users, Car, Menu, X, Shield, DollarSign, Award, FileSignature, LogOut } from "lucide-react";
+import { LayoutDashboard, Wrench, Users, Car, Menu, X, Shield, DollarSign, Award, FileSignature, LogOut, UserCircle } from "lucide-react";
 import Dashboard from "./pages/Dashboard";
 import Ordenes from "./pages/Ordenes";
 import Clientes from "./pages/Clientes";
@@ -12,6 +12,7 @@ import Aseguradoras from "./pages/Aseguradoras";
 import Finanzas from "./pages/Finanzas";
 import Garantias from "./pages/Garantias";
 import Presupuestos from "./pages/Presupuestos";
+import Usuarios from "./pages/Usuarios";
 import Login from "./pages/Login";
 import { useState, useEffect } from "react";
 import { AuthProvider, useAuth } from "./context/AuthContext";
@@ -28,13 +29,14 @@ function Navigation() {
   };
 
   const allNavItems = [
-    { name: "Dashboard", path: "/", icon: LayoutDashboard, roles: ["ADMIN", "RECEPCIONISTA", "TECNICO"] },
-    { name: "Presupuestos (Recepción)", path: "/presupuestos", icon: FileSignature, roles: ["ADMIN", "RECEPCIONISTA"] },
-    { name: "Órdenes de Trabajo", path: "/ordenes", icon: Wrench, roles: ["ADMIN", "RECEPCIONISTA", "TECNICO"] },
-    { name: "Clientes y Vehículos", path: "/clientes", icon: Users, roles: ["ADMIN", "RECEPCIONISTA"] },
-    { name: "Aseguradoras", path: "/aseguradoras", icon: Shield, roles: ["ADMIN", "RECEPCIONISTA"] },
-    { name: "Finanzas", path: "/finanzas", icon: DollarSign, roles: ["ADMIN"] },
-    { name: "Garantías", path: "/garantias", icon: Award, roles: ["ADMIN", "RECEPCIONISTA"] },
+    { name: "Dashboard", path: "/", icon: LayoutDashboard, roles: ["ADMIN", "JEFE", "RECEPCIONISTA", "TECNICO", "OPERADOR"] },
+    { name: "Presupuestos", path: "/presupuestos", icon: FileSignature, roles: ["ADMIN", "JEFE", "RECEPCIONISTA"] },
+    { name: "Órdenes de Trabajo", path: "/ordenes", icon: Wrench, roles: ["ADMIN", "JEFE", "RECEPCIONISTA", "TECNICO", "OPERADOR"] },
+    { name: "Clientes y Vehículos", path: "/clientes", icon: Users, roles: ["ADMIN", "JEFE", "RECEPCIONISTA"] },
+    { name: "Aseguradoras", path: "/aseguradoras", icon: Shield, roles: ["ADMIN", "JEFE", "RECEPCIONISTA"] },
+    { name: "Finanzas", path: "/finanzas", icon: DollarSign, roles: ["ADMIN", "JEFE"] },
+    { name: "Garantías", path: "/garantias", icon: Award, roles: ["ADMIN", "JEFE", "RECEPCIONISTA"] },
+    { name: "Usuarios", path: "/usuarios", icon: UserCircle, roles: ["ADMIN", "JEFE"] },
   ];
 
   // Filtramos por rol
@@ -100,7 +102,7 @@ function Navigation() {
       )}
 
       {/* Mobile Sidebar */}
-      <aside className={`fixed inset-y-0 left-0 bg-white w-64 border-r border-neutral-200 z-50 transform transition-transform duration-200 ease-in-out md:hidden ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+      <aside className={`fixed flex flex-col inset-y-0 left-0 bg-white w-64 border-r border-neutral-200 z-50 transform transition-transform duration-200 ease-in-out md:hidden ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="h-16 flex items-center justify-between px-6 border-b border-neutral-200 bg-slate-50">
           <div className="font-bold text-xl tracking-tight text-blue-900 flex items-center">
             <Wrench className="w-5 h-5 mr-2 text-blue-600" />
@@ -133,6 +135,17 @@ function Navigation() {
             })}
           </ul>
         </nav>
+        <div className="p-4 border-t border-neutral-200 mt-auto">
+          <div className="flex items-center justify-between">
+            <div className="text-sm">
+              <p className="font-medium text-slate-700">{user.nombre}</p>
+              <p className="text-xs text-slate-500">{user.rol}</p>
+            </div>
+            <button onClick={logout} className="text-slate-500 hover:text-red-600" title="Cerrar sesión">
+              <LogOut className="h-5 w-5" />
+            </button>
+          </div>
+        </div>
       </aside>
 
       {/* Mobile Sidebar Trigger & Header */}
@@ -152,12 +165,13 @@ function Navigation() {
           <div className="mx-auto max-w-6xl">
             <Routes>
               <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-              <Route path="/presupuestos" element={<ProtectedRoute reqRoles={["ADMIN", "RECEPCIONISTA"]}><Presupuestos /></ProtectedRoute>} />
+              <Route path="/presupuestos" element={<ProtectedRoute reqRoles={["ADMIN", "JEFE", "RECEPCIONISTA"]}><Presupuestos /></ProtectedRoute>} />
               <Route path="/ordenes/*" element={<ProtectedRoute><Ordenes /></ProtectedRoute>} />
-              <Route path="/clientes" element={<ProtectedRoute reqRoles={["ADMIN", "RECEPCIONISTA"]}><Clientes /></ProtectedRoute>} />
-              <Route path="/aseguradoras" element={<ProtectedRoute reqRoles={["ADMIN", "RECEPCIONISTA"]}><Aseguradoras /></ProtectedRoute>} />
-              <Route path="/finanzas" element={<ProtectedRoute reqRoles={["ADMIN"]}><Finanzas /></ProtectedRoute>} />
-              <Route path="/garantias" element={<ProtectedRoute reqRoles={["ADMIN", "RECEPCIONISTA"]}><Garantias /></ProtectedRoute>} />
+              <Route path="/clientes" element={<ProtectedRoute reqRoles={["ADMIN", "JEFE", "RECEPCIONISTA"]}><Clientes /></ProtectedRoute>} />
+              <Route path="/aseguradoras" element={<ProtectedRoute reqRoles={["ADMIN", "JEFE", "RECEPCIONISTA"]}><Aseguradoras /></ProtectedRoute>} />
+              <Route path="/finanzas" element={<ProtectedRoute reqRoles={["ADMIN", "JEFE"]}><Finanzas /></ProtectedRoute>} />
+              <Route path="/garantias" element={<ProtectedRoute reqRoles={["ADMIN", "JEFE", "RECEPCIONISTA"]}><Garantias /></ProtectedRoute>} />
+              <Route path="/usuarios" element={<ProtectedRoute reqRoles={["ADMIN", "JEFE"]}><Usuarios /></ProtectedRoute>} />
             </Routes>
           </div>
         </main>

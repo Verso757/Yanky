@@ -125,9 +125,11 @@ export default function Presupuestos() {
           <p className="text-sm text-slate-500">Captura ingresos express sin datos formales, aprueba y convierte a OT.</p>
         </div>
         <Dialog open={isNuevoOpen} onOpenChange={setIsNuevoOpen}>
-          <DialogTrigger render={<Button />}>
-            <Plus className="mr-2 h-4 w-4" />
-            Nuevo Presupuesto Rápido
+          <DialogTrigger asChild>
+            <Button>
+              <Plus className="mr-2 h-4 w-4" />
+              Nuevo Presupuesto Rápido
+            </Button>
           </DialogTrigger>
           <DialogContent className="max-w-md">
             <DialogHeader>
@@ -160,6 +162,7 @@ export default function Presupuestos() {
                   <Input value={clienteTelefono} onChange={e=>setClienteTelefono(e.target.value)} placeholder="Ej. 55..." />
                 </div>
               </div>
+              <p className="text-xs text-slate-500 mt-2">Nota: Podrás añadir fotos y evidencias de los daños inmediatamente después de guardar el presupuesto, desde la tabla principal.</p>
               <Button onClick={handleCreateGroup} className="w-full mt-4">Guardar Presupuesto</Button>
             </div>
           </DialogContent>
@@ -203,8 +206,10 @@ export default function Presupuestos() {
                 <TableCell>{getStatusBadge(p.estado)}</TableCell>
                 <TableCell className="text-right space-x-2">
                   <Dialog>
-                    <DialogTrigger render={<Button variant="ghost" size="sm" className="text-slate-500 hover:text-slate-800" title="Evidencias y Fotos" />}>
-                      <Camera className="h-4 w-4" />
+                    <DialogTrigger asChild>
+                      <Button variant="ghost" size="sm" className="text-slate-500 hover:text-slate-800" title="Evidencias y Fotos">
+                        <Camera className="h-4 w-4" />
+                      </Button>
                     </DialogTrigger>
                     <DialogContent className="max-w-4xl">
                       <DialogHeader>

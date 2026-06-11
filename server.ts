@@ -1,5 +1,7 @@
 import express, { Request, Response, NextFunction } from "express";
 import path from "path";
+import fs from "fs";
+import multer from "multer";
 import { createServer as createViteServer } from "vite";
 import { PrismaClient } from "@prisma/client";
 import jwt from "jsonwebtoken";
@@ -35,8 +37,28 @@ export const requireRole = (...roles: string[]) => {
 };
 
 async function startServer() {
+  const uploadsDir = path.join(process.cwd(), "uploads");
+  if (!fs.existsSync(uploadsDir)) {
+    fs.mkdirSync(uploadsDir, { recursive: true });
+  }
+
+  const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+      cb(null, uploadsDir);
+    },
+    filename: function (req, file, cb) {
+      const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+      const ext = path.extname(file.originalname);
+      cb(null, file.fieldname + '-' + uniqueSuffix + ext);
+    }
+  });
+  const upload = multer({ storage: storage });
+
   const app = express();
   const PORT = 3000;
+
+  // Serve uploads
+  app.use("/uploads", express.static(uploadsDir));
 
   app.use(express.json({ limit: "50mb" }));
 
@@ -68,6 +90,56 @@ async function startServer() {
   // API Routes
   app.get("/api/health", (req, res) => {
     res.json({ status: "ok" });
+  });
+
+  // Usuarios
+  app.get("/api/usuarios", async (req, res, next) => {
+    try {
+      const usuarios = await prisma.user.findMany({
+        select: { id: true, nombre: true, email: true, rol: true, activo: true, creadoEn: true }
+      });
+      res.json(usuarios);
+    } catch (e) {
+      next(e);
+    }
+  });
+
+  app.post("/api/usuarios", async (req, res, next) => {
+    try {
+      const { nombre, email, password, rol } = req.body;
+      const exist = await prisma.user.findUnique({ where: { email } });
+      if (exist) {
+        res.status(400).json({ error: "Email ya registrado" });
+        return;
+      }
+      const passwordHash = await bcrypt.hash(password, 10);
+      const user = await prisma.user.create({
+        data: { nombre, email, passwordHash, rol }
+      });
+      res.json({ id: user.id, nombre: user.nombre, email: user.email, rol: user.rol });
+    } catch (e) {
+      next(e);
+    }
+  });
+
+  app.patch("/api/usuarios/:id", async (req, res, next) => {
+    try {
+      const { id } = req.params;
+      const { nombre, email, password, rol, activo } = req.body;
+      const data: any = { nombre, email, rol };
+      if (activo !== undefined) data.activo = activo;
+      if (password) {
+        data.passwordHash = await bcrypt.hash(password, 10);
+      }
+      
+      const user = await prisma.user.update({
+        where: { id },
+        data
+      });
+      res.json({ id: user.id, nombre: user.nombre, email: user.email, rol: user.rol, activo: user.activo });
+    } catch (e) {
+      next(e);
+    }
   });
 
   // Ordenes de Trabajo
@@ -296,7 +368,7 @@ async function startServer() {
       const data = req.body;
       const presupuesto = await prisma.presupuesto.create({
         data: {
-          folio: `PRE-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`,
+          folio: `PRE-${new Date().getFullYear()}-${Date.now().toString().slice(-4)}${Math.floor(100 + Math.random() * 900)}`,
           placas: data.placas,
           descripcionDano: data.descripcionDano,
           montoEstimado: data.montoEstimado ? parseFloat(data.montoEstimado) : 0,
@@ -411,13 +483,22 @@ async function startServer() {
     } catch (e) { next(e); }
   });
 
-  app.post("/api/evidencias", async (req, res, next) => {
+  app.post("/api/evidencias", upload.single("file"), async (req, res, next) => {
     try {
-      const { urlBase64, descripcion, presupuestoId, ordenTrabajoId } = req.body;
+      const { descripcion, presupuestoId, ordenTrabajoId } = req.body;
+      const file = req.file;
+      
+      if (!file) {
+        res.status(400).json({ error: "No se proporcionó archivo" });
+        return;
+      }
+      
+      const fileUrl = `/uploads/${file.filename}`;
+
       const evidencia = await prisma.evidencia.create({
         data: {
-          urlBase64,
-          descripcion,
+          urlBase64: fileUrl, // Se reutiliza el campo, pero ahora guarda el URL de Hostinger
+          descripcion: descripcion || file.originalname,
           presupuestoId: presupuestoId || null,
           ordenTrabajoId: ordenTrabajoId || null
         }

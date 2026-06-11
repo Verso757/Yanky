@@ -83,13 +83,17 @@ export default function OrdenDetail() {
           </div>
         </div>
         <div className="flex space-x-2">
-          <Button variant="outline" render={<a href={`https://wa.me/${ot.cliente.telefono}?text=${wappMessage}`} target="_blank" rel="noreferrer" />}>
-            <MessageCircle className="h-4 w-4 mr-2" />
-            WhatsApp
+          <Button variant="outline" asChild>
+            <a href={`https://wa.me/${ot.cliente.telefono}?text=${wappMessage}`} target="_blank" rel="noreferrer">
+              <MessageCircle className="h-4 w-4 mr-2" />
+              WhatsApp
+            </a>
           </Button>
 
           <Dialog open={isEstadoOpen} onOpenChange={setIsEstadoOpen}>
-            <DialogTrigger render={<Button />}>Actualizar Estado</DialogTrigger>
+            <DialogTrigger asChild>
+              <Button>Actualizar Estado</Button>
+            </DialogTrigger>
             <DialogContent>
               <DialogHeader>
                 <DialogTitle>Actualizar Estado de la Orden</DialogTitle>
@@ -148,8 +152,10 @@ export default function OrdenDetail() {
               </div>
 
               <Dialog open={isPagoOpen} onOpenChange={setIsPagoOpen}>
-                <DialogTrigger render={<Button variant="outline" className="w-full" />}>
-                  <DollarSign className="w-4 h-4 mr-2" /> Registrar Pago
+                <DialogTrigger asChild>
+                  <Button variant="outline" className="w-full">
+                    <DollarSign className="w-4 h-4 mr-2" /> Registrar Pago
+                  </Button>
                 </DialogTrigger>
                 <DialogContent>
                   <DialogHeader>

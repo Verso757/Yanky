@@ -6,7 +6,7 @@ interface User {
   id: string;
   nombre: string;
   email: string;
-  rol: "ADMIN" | "RECEPCIONISTA" | "TECNICO";
+  rol: "ADMIN" | "JEFE" | "RECEPCIONISTA" | "TECNICO" | "OPERADOR" | string;
 }
 
 interface AuthContextType {
@@ -20,26 +20,39 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>({
-    id: "fake-admin-id",
-    nombre: "Admin Preview",
-    email: "admin@taller.com",
-    rol: "ADMIN",
-  });
-  const [token, setToken] = useState<string | null>("fake-token");
-  const [isLoading, setIsLoading] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
+  const [token, setToken] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Disabled authentication for preview
+    const storedToken = localStorage.getItem("fixflow_token");
+    const storedUser = localStorage.getItem("fixflow_user");
+    
+    if (storedToken && storedUser) {
+      setToken(storedToken);
+      setUser(JSON.parse(storedUser));
+      axios.defaults.headers.common["Authorization"] = `Bearer ${storedToken}`;
+    }
+    
+    setIsLoading(false);
   }, []);
 
   const login = (newToken: string, newUser: User) => {
-    //
+    setToken(newToken);
+    setUser(newUser);
+    localStorage.setItem("fixflow_token", newToken);
+    localStorage.setItem("fixflow_user", JSON.stringify(newUser));
+    axios.defaults.headers.common["Authorization"] = `Bearer ${newToken}`;
   };
 
   const logout = () => {
-    //
+    setToken(null);
+    setUser(null);
+    localStorage.removeItem("fixflow_token");
+    localStorage.removeItem("fixflow_user");
+    delete axios.defaults.headers.common["Authorization"];
+    navigate("/login");
   };
 
   return (

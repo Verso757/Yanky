@@ -21,7 +21,7 @@ export default function EvidenciasGallery({ entityId, entityType }: { entityId: 
     fetchFotos();
   }, [entityId]);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -30,17 +30,19 @@ export default function EvidenciasGallery({ entityId, entityType }: { entityId: 
       return;
     }
 
-    const reader = new FileReader();
-    reader.onload = async (event) => {
-      const base64String = event.target?.result;
-      if (typeof base64String === "string") {
+      if (file) {
         setIsUploading(true);
         try {
-          await axios.post("/api/evidencias", {
-            urlBase64: base64String,
-            descripcion: file.name,
-            presupuestoId: entityType === 'presupuesto' ? entityId : null,
-            ordenTrabajoId: entityType === 'orden' ? entityId : null,
+          const formData = new FormData();
+          formData.append("file", file);
+          if (file.name) formData.append("descripcion", file.name);
+          if (entityType === 'presupuesto') formData.append("presupuestoId", entityId);
+          if (entityType === 'orden') formData.append("ordenTrabajoId", entityId);
+
+          await axios.post("/api/evidencias", formData, {
+            headers: {
+              "Content-Type": "multipart/form-data"
+            }
           });
           fetchFotos();
         } catch (e) {
@@ -48,8 +50,6 @@ export default function EvidenciasGallery({ entityId, entityType }: { entityId: 
         }
         setIsUploading(false);
       }
-    };
-    reader.readAsDataURL(file);
   };
 
   return (
@@ -67,7 +67,6 @@ export default function EvidenciasGallery({ entityId, entityType }: { entityId: 
           ref={fileInputRef} 
           className="hidden" 
           accept="image/*" 
-          capture="environment" 
           onChange={handleFileChange} 
         />
       </div>
