@@ -97,12 +97,10 @@ export default function Usuarios() {
         
         {currentUser?.rol === "ADMIN" && (
           <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
-            <DialogTrigger asChild>
-              <Button className="bg-blue-600 hover:bg-blue-700">
+            <DialogTrigger render={<Button className="bg-blue-600 hover:bg-blue-700" />}>
                 <UserPlus className="h-4 w-4 mr-2" />
                 Nuevo Usuario
-              </Button>
-            </DialogTrigger>
+              </DialogTrigger>
             <DialogContent className="sm:max-w-[425px]">
               <DialogHeader>
                 <DialogTitle>Registrar Nuevo Usuario</DialogTitle>
@@ -195,16 +193,14 @@ export default function Usuarios() {
                           setIsEditOpen(open);
                           if (!open) setSelectedUser(null);
                         }}>
-                          <DialogTrigger asChild>
-                            <Button 
+                          <DialogTrigger render={<Button 
                               variant="ghost" 
                               size="sm" 
                               className="text-slate-500 hover:text-blue-600 mr-2"
                               onClick={() => setSelectedUser({...u, password: ""})}
-                            >
+                            />}>
                               <Pencil className="w-4 h-4" />
-                            </Button>
-                          </DialogTrigger>
+                            </DialogTrigger>
                           <DialogContent className="sm:max-w-[425px]">
                             <DialogHeader>
                               <DialogTitle>Editar Usuario</DialogTitle>

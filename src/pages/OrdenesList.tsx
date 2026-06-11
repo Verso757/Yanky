@@ -86,7 +86,7 @@ export default function OrdenesList() {
                 <TableCell className="font-medium text-slate-900">{ot.folio}</TableCell>
                 <TableCell>{ot.cliente.nombre}</TableCell>
                 <TableCell>{ot.vehiculo.marca} {ot.vehiculo.modelo} <span className="ml-1 px-1.5 py-0.5 rounded border bg-slate-100 text-xs font-mono">{ot.vehiculo.placas}</span></TableCell>
-                <TableCell className="text-slate-500">{format(new Date(ot.fechaIngreso), "dd/MM/yyyy")}</TableCell>
+                <TableCell className="text-slate-500">{ot.createdAt ? format(new Date(ot.createdAt), "dd/MM/yyyy") : "--"}</TableCell>
                 <TableCell>
                   <Badge variant="secondary" className={`${getStatusColor(ot.estado)} hover:${getStatusColor(ot.estado)} border-transparent`}>
                     {ot.estado.replace("_", " ")}

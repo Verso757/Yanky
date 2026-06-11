@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import axios from "axios";
+import axios from "@/src/lib/api";
 import { Camera, Image as ImageIcon, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
@@ -80,10 +80,8 @@ export default function EvidenciasGallery({ entityId, entityType }: { entityId: 
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
           {fotos.map((f) => (
             <Dialog key={f.id}>
-              <DialogTrigger asChild>
-                <div className="aspect-square bg-slate-100 rounded-md overflow-hidden cursor-pointer border hover:border-indigo-500 transition-colors">
+              <DialogTrigger render={<div className="aspect-square bg-slate-100 rounded-md overflow-hidden cursor-pointer border hover:border-indigo-500 transition-colors" />}>
                   <img src={f.urlBase64} alt="Evidencia" className="w-full h-full object-cover" />
-                </div>
               </DialogTrigger>
               <DialogContent className="max-w-3xl border-0 p-0 overflow-hidden bg-transparent shadow-none">
                 <img src={f.urlBase64} alt="Evidencia Ampliada" className="w-full h-auto max-h-[85vh] object-contain rounded-md" />

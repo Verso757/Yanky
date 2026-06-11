@@ -93,7 +93,7 @@ export default function Finanzas() {
             <TableBody>
               {gastos.map((g) => (
                 <TableRow key={g.id}>
-                  <TableCell>{format(new Date(g.fecha), "dd/MM/yyyy")}</TableCell>
+                  <TableCell>{g.fecha ? format(new Date(g.fecha), "dd/MM/yyyy") : "--"}</TableCell>
                   <TableCell>{g.descripcion}</TableCell>
                   <TableCell>{g.categoria}</TableCell>
                   <TableCell>{g.metodoPago}</TableCell>

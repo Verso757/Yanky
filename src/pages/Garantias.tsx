@@ -50,7 +50,7 @@ export default function Garantias() {
                     <p className="text-xs text-slate-500">{g.ordenTrabajo.vehiculo.marca} {g.ordenTrabajo.vehiculo.placas}</p>
                   </TableCell>
                   <TableCell>{g.tipo}</TableCell>
-                  <TableCell className="text-slate-500">{format(new Date(g.fechaVencimiento), "dd/MM/yyyy")}</TableCell>
+                  <TableCell className="text-slate-500">{g.fechaVencimiento ? format(new Date(g.fechaVencimiento), "dd/MM/yyyy") : "--"}</TableCell>
                   <TableCell>
                     {isVencida ? (
                        <Badge variant="outline" className="bg-slate-100 text-slate-600 border-transparent">

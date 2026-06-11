@@ -125,12 +125,10 @@ export default function Presupuestos() {
           <p className="text-sm text-slate-500">Captura ingresos express sin datos formales, aprueba y convierte a OT.</p>
         </div>
         <Dialog open={isNuevoOpen} onOpenChange={setIsNuevoOpen}>
-          <DialogTrigger asChild>
-            <Button>
+          <DialogTrigger render={<Button />}>
               <Plus className="mr-2 h-4 w-4" />
               Nuevo Presupuesto Rápido
-            </Button>
-          </DialogTrigger>
+            </DialogTrigger>
           <DialogContent className="max-w-md">
             <DialogHeader>
               <DialogTitle>Valoración Rápida (Recepción)</DialogTitle>
@@ -199,18 +197,16 @@ export default function Presupuestos() {
             {filtered.map((p) => (
               <TableRow key={p.id}>
                 <TableCell className="font-medium text-slate-900">{p.folio}</TableCell>
-                <TableCell className="text-slate-500">{format(new Date(p.createdAt), "dd/MM/yyyy HH:mm")}</TableCell>
+                <TableCell className="text-slate-500">{p.createdAt ? format(new Date(p.createdAt), "dd/MM/yyyy HH:mm") : "--"}</TableCell>
                 <TableCell><Badge variant="outline" className="font-mono bg-slate-50">{p.placas}</Badge></TableCell>
                 <TableCell className="max-w-[200px] truncate" title={p.descripcionDano}>{p.descripcionDano}</TableCell>
                 <TableCell className="font-medium text-slate-700">${p.montoEstimado.toFixed(2)}</TableCell>
                 <TableCell>{getStatusBadge(p.estado)}</TableCell>
                 <TableCell className="text-right space-x-2">
                   <Dialog>
-                    <DialogTrigger asChild>
-                      <Button variant="ghost" size="sm" className="text-slate-500 hover:text-slate-800" title="Evidencias y Fotos">
+                    <DialogTrigger render={<Button variant="ghost" size="sm" className="text-slate-500 hover:text-slate-800" title="Evidencias y Fotos" />}>
                         <Camera className="h-4 w-4" />
-                      </Button>
-                    </DialogTrigger>
+                      </DialogTrigger>
                     <DialogContent className="max-w-4xl">
                       <DialogHeader>
                         <DialogTitle>Evidencias del Presupuesto {p.folio}</DialogTitle>

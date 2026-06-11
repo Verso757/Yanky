@@ -78,22 +78,18 @@ export default function OrdenDetail() {
           <div>
             <h1 className="text-3xl font-bold tracking-tight">{ot.folio}</h1>
             <p className="text-sm text-slate-500">
-              Ingreso: {format(new Date(ot.fechaIngreso), "dd/MM/yyyy HH:mm")}
+              Ingreso: {ot.createdAt ? format(new Date(ot.createdAt), "dd/MM/yyyy HH:mm") : "--"}
             </p>
           </div>
         </div>
         <div className="flex space-x-2">
-          <Button variant="outline" asChild>
-            <a href={`https://wa.me/${ot.cliente.telefono}?text=${wappMessage}`} target="_blank" rel="noreferrer">
-              <MessageCircle className="h-4 w-4 mr-2" />
-              WhatsApp
-            </a>
+          <Button variant="outline" render={<a href={`https://wa.me/${ot.cliente.telefono}?text=${wappMessage}`} target="_blank" rel="noreferrer" />}>
+            <MessageCircle className="h-4 w-4 mr-2" />
+            WhatsApp
           </Button>
 
           <Dialog open={isEstadoOpen} onOpenChange={setIsEstadoOpen}>
-            <DialogTrigger asChild>
-              <Button>Actualizar Estado</Button>
-            </DialogTrigger>
+            <DialogTrigger render={<Button />}>Actualizar Estado</DialogTrigger>
             <DialogContent>
               <DialogHeader>
                 <DialogTitle>Actualizar Estado de la Orden</DialogTitle>
@@ -152,11 +148,9 @@ export default function OrdenDetail() {
               </div>
 
               <Dialog open={isPagoOpen} onOpenChange={setIsPagoOpen}>
-                <DialogTrigger asChild>
-                  <Button variant="outline" className="w-full">
+                <DialogTrigger render={<Button variant="outline" className="w-full" />}>
                     <DollarSign className="w-4 h-4 mr-2" /> Registrar Pago
-                  </Button>
-                </DialogTrigger>
+                  </DialogTrigger>
                 <DialogContent>
                   <DialogHeader>
                     <DialogTitle>Registrar Pago / Abono</DialogTitle>
