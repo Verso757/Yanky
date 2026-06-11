@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { BrowserRouter as Router, Routes, Route, Link, useLocation } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Link, useLocation, Navigate } from "react-router-dom";
 import { LayoutDashboard, Wrench, Users, Car, Menu, X, Shield, DollarSign, Award, FileSignature, LogOut, UserCircle } from "lucide-react";
 import Dashboard from "./pages/Dashboard";
 import Ordenes from "./pages/Ordenes";
@@ -47,7 +47,9 @@ function Navigation() {
     setSidebarOpen(false);
   }, [location.pathname]);
 
-  if (!user) return null; // No renderizamos menús si no hay usuario
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
 
   return (
     <>
@@ -184,12 +186,14 @@ export default function App() {
   return (
     <Router>
       <AuthProvider>
-        <div className="flex h-screen overflow-hidden">
-          <Routes>
-            <Route path="/login" element={<Login />} />
-            <Route path="*" element={<Navigation />} />
-          </Routes>
-        </div>
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route path="*" element={
+            <div className="flex h-screen w-full overflow-hidden">
+              <Navigation />
+            </div>
+          } />
+        </Routes>
       </AuthProvider>
     </Router>
   );
