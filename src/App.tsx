@@ -21,7 +21,7 @@ import { ProtectedRoute } from "./components/ProtectedRoute";
 function Navigation() {
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const { user, logout } = useAuth();
+  const { user, logout, isLoading } = useAuth();
 
   const isActive = (path: string) => {
     if (path === '/' && location.pathname !== '/') return false;
@@ -29,9 +29,9 @@ function Navigation() {
   };
 
   const allNavItems = [
-    { name: "Dashboard", path: "/", icon: LayoutDashboard, roles: ["ADMIN", "JEFE", "RECEPCIONISTA", "TECNICO", "OPERADOR"] },
+    { name: "Dashboard", path: "/", icon: LayoutDashboard, roles: ["ADMIN", "JEFE", "RECEPCIONISTA", "TECNICO"] },
     { name: "Presupuestos", path: "/presupuestos", icon: FileSignature, roles: ["ADMIN", "JEFE", "RECEPCIONISTA"] },
-    { name: "Órdenes de Trabajo", path: "/ordenes", icon: Wrench, roles: ["ADMIN", "JEFE", "RECEPCIONISTA", "TECNICO", "OPERADOR"] },
+    { name: "Órdenes de Trabajo", path: "/ordenes", icon: Wrench, roles: ["ADMIN", "JEFE", "RECEPCIONISTA", "TECNICO"] },
     { name: "Clientes y Vehículos", path: "/clientes", icon: Users, roles: ["ADMIN", "JEFE", "RECEPCIONISTA"] },
     { name: "Aseguradoras", path: "/aseguradoras", icon: Shield, roles: ["ADMIN", "JEFE", "RECEPCIONISTA"] },
     { name: "Finanzas", path: "/finanzas", icon: DollarSign, roles: ["ADMIN", "JEFE"] },
@@ -46,6 +46,10 @@ function Navigation() {
   useEffect(() => {
     setSidebarOpen(false);
   }, [location.pathname]);
+
+  if (isLoading) {
+    return null; // Don't redirect while loading Auth
+  }
 
   if (!user) {
     return <Navigate to="/login" replace />;

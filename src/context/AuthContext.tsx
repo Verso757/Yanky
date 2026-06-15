@@ -6,7 +6,7 @@ interface User {
   id: string;
   nombre: string;
   email: string;
-  rol: "ADMIN" | "JEFE" | "RECEPCIONISTA" | "TECNICO" | "OPERADOR" | string;
+  rol: "ADMIN" | "JEFE" | "RECEPCIONISTA" | "TECNICO" | string;
 }
 
 interface AuthContextType {

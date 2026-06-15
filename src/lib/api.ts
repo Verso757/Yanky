@@ -21,14 +21,35 @@ export const api = {
   patch: async (url: string, data?: any) => {
     return handleRequest("PATCH", url, data);
   },
+  put: async (url: string, data?: any) => {
+    return handleRequest("PUT", url, data);
+  },
   delete: async (url: string) => {
     return handleRequest("DELETE", url);
   }
 };
 
+const requestCache = new Map<string, { data: any, timestamp: number }>();
+const CACHE_TTL = 15000; // 15 seconds
+
 async function handleRequest(method: string, url: string, data?: any) {
   try {
+    if (method === "GET") {
+      const cached = requestCache.get(url);
+      if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
+        return { data: cached.data };
+      }
+    } else {
+      // Clear cache on any mutation
+      requestCache.clear();
+    }
+
     const res = await processRoute(method, url, data);
+    
+    if (method === "GET") {
+      requestCache.set(url, { data: res, timestamp: Date.now() });
+    }
+    
     return { data: res };
   } catch (err: any) {
     console.error("API Error", method, url, err);
@@ -42,11 +63,16 @@ async function processRoute(method: string, url: string, data: any) {
     const { email, password } = data;
     const usersSnap = await getDocs(query(collection(db, "users"), where("email", "==", email)));
     
-    // Seed admin if empty and trying to login with admin@taller.com / 123456
-    if (usersSnap.empty && email === "admin@taller.com" && password === "123456") {
+    // Seed admin if empty and trying to login with admin/koferosgroup
+    if (usersSnap.empty && ((email === "admin@taller.com" && password === "123456") || (email === "koferosgroup@gmail.com" && password === "123456"))) {
       const hash = bcrypt.hashSync(password, 10);
       const newAdmin = {
-        nombre: "Admin", email, passwordHash: hash, rol: "ADMIN", activo: true, creadoEn: new Date().toISOString()
+        nombre: email === "koferosgroup@gmail.com" ? "Super Admin" : "Admin Presentación", 
+        email, 
+        passwordHash: hash, 
+        rol: "ADMIN", 
+        activo: true, 
+        creadoEn: new Date().toISOString()
       };
       const docRef = doc(collection(db, "users"));
       await setDoc(docRef, newAdmin);
@@ -108,18 +134,67 @@ async function processRoute(method: string, url: string, data: any) {
     });
     return clientes;
   }
+  if (method === "POST" && url === "/api/clientes") {
+    const ref = await addDoc(collection(db, "clientes"), data);
+    const d = await getDoc(ref);
+    return { id: d.id, ...d.data() };
+  }
+  if (method === "PUT" && url.match(/\/api\/clientes\/([^/]+)/)) {
+    const id = url.match(/\/api\/clientes\/([^/]+)/)![1];
+    await updateDoc(doc(db, "clientes", id), data);
+    const d = await getDoc(doc(db, "clientes", id));
+    return { id: d.id, ...d.data() };
+  }
 
   // --- VEHICULOS ---
   if (method === "GET" && url === "/api/vehiculos") {
     const snap = await getDocs(collection(db, "vehiculos"));
     return snap.docs.map(d => ({ id: d.id, ...d.data() }));
   }
+  if (method === "POST" && url === "/api/vehiculos") {
+    const ref = await addDoc(collection(db, "vehiculos"), data);
+    const d = await getDoc(ref);
+    return { id: d.id, ...d.data() };
+  }
+  if (method === "PUT" && url.match(/\/api\/vehiculos\/([^/]+)/)) {
+    const id = url.match(/\/api\/vehiculos\/([^/]+)/)![1];
+    await updateDoc(doc(db, "vehiculos", id), data);
+    const d = await getDoc(doc(db, "vehiculos", id));
+    return { id: d.id, ...d.data() };
+  }
+
+  // --- ORDENES POR VEHICULO ---
+  if (method === "GET" && url.match(/\/api\/vehiculos\/([^/]+)\/ordenes/)) {
+    const id = url.match(/\/api\/vehiculos\/([^/]+)\/ordenes/)![1];
+    const q = query(collection(db, "ordenes"), where("vehiculoId", "==", id));
+    const snap = await getDocs(q);
+    const ordenes = snap.docs.map(d => ({ id: d.id, ...d.data() })) as any[];
+    return ordenes.sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  }
 
   // --- ASEGURADORAS ---
   if (method === "GET" && url === "/api/aseguradoras") {
     const snap = await getDocs(collection(db, "aseguradoras"));
-    const as = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    const as = snap.docs.map(d => ({ id: d.id, ...d.data() })) as any[];
+    
+    // populate OTs
+    const otsSnap = await getDocs(collection(db, "ordenes"));
+    const ots = otsSnap.docs.map(d => ({ id: d.id, ...d.data() })) as any[];
+    
+    as.forEach(a => {
+      a.ots = ots.filter(o => o.aseguradoraId === a.id);
+    });
+
     return as;
+  }
+  if (method === "POST" && url === "/api/aseguradoras") {
+    const ref = await addDoc(collection(db, "aseguradoras"), data);
+    return { id: ref.id, ...data };
+  }
+  if (method === "PUT" && url.match(/\/api\/aseguradoras\/([^/]+)/)) {
+    const id = url.match(/\/api\/aseguradoras\/([^/]+)/)![1];
+    await updateDoc(doc(db, "aseguradoras", id), data);
+    return { id, ...data };
   }
 
   // --- ORDENES ---
@@ -177,6 +252,15 @@ async function processRoute(method: string, url: string, data: any) {
     }
     const d = await getDoc(doc(db, "ordenes", id));
     return { id: d.id, ...d.data() };
+  }
+
+  if (method === "PATCH" && url.match(/\/api\/ordenes\/([^/]+)\/tecnico/)) {
+    const id = url.match(/\/api\/ordenes\/([^/]+)\/tecnico/)![1];
+    await updateDoc(doc(db, "ordenes", id), { 
+      mecanicoAsignado: data.tecnicoId,
+      nombreMecanicoAsignado: data.tecnicoNombre 
+    });
+    return { success: true };
   }
 
   if (method === "POST" && url.match(/\/api\/ordenes\/([^/]+)\/pago/)) {
@@ -244,6 +328,9 @@ async function processRoute(method: string, url: string, data: any) {
   }
 
   if (method === "POST" && url === "/api/presupuestos") {
+    const userStr = localStorage.getItem("fixflow_user");
+    const user = userStr ? JSON.parse(userStr) : null;
+    
     const p = {
       folio: `PRE-${new Date().getFullYear()}-${Date.now().toString().slice(-4)}${Math.floor(100 + Math.random() * 900)}`,
       placas: data.placas,
@@ -254,6 +341,8 @@ async function processRoute(method: string, url: string, data: any) {
       clienteId: data.clienteId || null,
       vehiculoId: data.vehiculoId || null,
       estado: "PENDIENTE",
+      creadoPorId: data.creadoPorId || user?.id || null,
+      creadoPorNombre: data.creadoPorNombre || user?.nombre || "Desconocido",
       createdAt: new Date().toISOString()
     };
     const docRef = await addDoc(collection(db, "presupuestos"), p);
@@ -276,6 +365,7 @@ async function processRoute(method: string, url: string, data: any) {
         nombre: clienteInfo?.nombre || p.clienteNombre || "Cliente General",
         telefono: clienteInfo?.telefono || p.clienteTelefono,
         email: clienteInfo?.email || null,
+        tipo: "PARTICULAR"
       });
       clienteId = cRef.id;
     }
@@ -317,14 +407,20 @@ async function processRoute(method: string, url: string, data: any) {
 
   // --- EVIDENCIAS ---
   if (method === "GET" && url.startsWith("/api/evidencias/presupuesto/")) {
-    const id = url.split("/").pop();
+    const parts = url.split("?")[0].split("/");
+    const id = parts.pop();
+    const categoria = new URLSearchParams(url.split("?")[1] || "").get("categoria") || "GENERAL";
     const snap = await getDocs(query(collection(db, "evidencias"), where("presupuestoId", "==", id)));
-    return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    const allDocs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    return allDocs.filter((d: any) => (d.categoria || "GENERAL") === categoria);
   }
   if (method === "GET" && url.startsWith("/api/evidencias/orden/")) {
-    const id = url.split("/").pop();
+    const parts = url.split("?")[0].split("/");
+    const id = parts.pop();
+    const categoria = new URLSearchParams(url.split("?")[1] || "").get("categoria") || "GENERAL";
     const snap = await getDocs(query(collection(db, "evidencias"), where("ordenTrabajoId", "==", id)));
-    return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    const allDocs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    return allDocs.filter((d: any) => (d.categoria || "GENERAL") === categoria);
   }
   if (method === "POST" && url === "/api/evidencias") {
     // data is FormData
@@ -332,6 +428,7 @@ async function processRoute(method: string, url: string, data: any) {
     const descripcion = data.get("descripcion");
     const presupuestoId = data.get("presupuestoId");
     const ordenTrabajoId = data.get("ordenTrabajoId");
+    const categoria = data.get("categoria") || "GENERAL";
     
     // We mock file upload by reading it as base64
     const base64 = await new Promise((resolve) => {
@@ -345,10 +442,40 @@ async function processRoute(method: string, url: string, data: any) {
       descripcion: descripcion || file.name,
       presupuestoId: presupuestoId || null,
       ordenTrabajoId: ordenTrabajoId || null,
+      categoria,
       createdAt: new Date().toISOString()
     };
     const ref = await addDoc(collection(db, "evidencias"), ev);
     return { id: ref.id, ...ev };
+  }
+
+  // --- ENTREGAS ---
+  if (method === "POST" && url.match(/\/api\/ordenes\/([^/]+)\/entregar/)) {
+    const id = url.match(/\/api\/ordenes\/([^/]+)\/entregar/)![1];
+    await updateDoc(doc(db, "ordenes", id), {
+      estado: "ENTREGADO",
+      datosEntrega: {
+        quienRecibe: data.quienRecibe || "",
+        notasEntrega: data.notasEntrega || "",
+        fechaEntrega: new Date().toISOString()
+      }
+    });
+
+    // Also create guarantee if we want, or rely on earlier trigger. Let's do it here just in case.
+    const gSnap = await getDocs(query(collection(db, "garantias"), where("ordenTrabajoId", "==", id)));
+    if (gSnap.empty) {
+      const d = new Date();
+      d.setDate(d.getDate() + 90);
+      await addDoc(collection(db, "garantias"), {
+        tipo: "REPARACION",
+        vigenciaDias: 90,
+        fechaVencimiento: d.toISOString(),
+        ordenTrabajoId: id
+      });
+    }
+
+    const d = await getDoc(doc(db, "ordenes", id));
+    return { id: d.id, ...d.data() };
   }
 
   throw new Error("Route not mocked: " + method + " " + url);

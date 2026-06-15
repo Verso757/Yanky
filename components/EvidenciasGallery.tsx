@@ -4,13 +4,13 @@ import { Camera, Image as ImageIcon, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 
-export default function EvidenciasGallery({ entityId, entityType }: { entityId: string, entityType: 'presupuesto' | 'orden' }) {
+export default function EvidenciasGallery({ entityId, entityType, categoria = "GENERAL", title = "Evidencias Fotográficas" }: { entityId: string, entityType: 'presupuesto' | 'orden', categoria?: string, title?: string }) {
   const [fotos, setFotos] = useState<any[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const fetchFotos = () => {
-    axios.get(`/api/evidencias/${entityType}/${entityId}`).then(res => {
+    axios.get(`/api/evidencias/${entityType}/${entityId}?categoria=${categoria}`).then(res => {
       if (Array.isArray(res.data)) {
         setFotos(res.data);
       }
@@ -19,7 +19,7 @@ export default function EvidenciasGallery({ entityId, entityType }: { entityId: 
 
   useEffect(() => {
     fetchFotos();
-  }, [entityId]);
+  }, [entityId, categoria]);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -38,6 +38,7 @@ export default function EvidenciasGallery({ entityId, entityType }: { entityId: 
           if (file.name) formData.append("descripcion", file.name);
           if (entityType === 'presupuesto') formData.append("presupuestoId", entityId);
           if (entityType === 'orden') formData.append("ordenTrabajoId", entityId);
+          formData.append("categoria", categoria);
 
           await axios.post("/api/evidencias", formData, {
             headers: {
@@ -55,8 +56,8 @@ export default function EvidenciasGallery({ entityId, entityType }: { entityId: 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold flex items-center">
-          <Camera className="mr-2 h-5 w-5" /> Evidencias Fotográficas
+        <h3 className="text-sm font-semibold flex items-center text-slate-700">
+          <Camera className="mr-2 h-4 w-4" /> {title}
         </h3>
         <Button onClick={() => fileInputRef.current?.click()} disabled={isUploading} variant="outline" size="sm">
           <Upload className="mr-2 h-4 w-4" />
@@ -80,10 +81,12 @@ export default function EvidenciasGallery({ entityId, entityType }: { entityId: 
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
           {fotos.map((f) => (
             <Dialog key={f.id}>
-              <DialogTrigger render={<div className="aspect-square bg-slate-100 rounded-md overflow-hidden cursor-pointer border hover:border-indigo-500 transition-colors" />}>
+              <DialogTrigger render={
+                <button type="button" className="aspect-square bg-slate-100 rounded-md overflow-hidden cursor-pointer border hover:border-indigo-500 transition-colors w-full p-0">
                   <img src={f.urlBase64} alt="Evidencia" className="w-full h-full object-cover" />
-              </DialogTrigger>
-              <DialogContent className="max-w-3xl border-0 p-0 overflow-hidden bg-transparent shadow-none">
+                </button>
+              } />
+              <DialogContent className="sm:max-w-3xl w-[95vw] border-0 p-0 overflow-hidden bg-transparent shadow-none">
                 <img src={f.urlBase64} alt="Evidencia Ampliada" className="w-full h-auto max-h-[85vh] object-contain rounded-md" />
               </DialogContent>
             </Dialog>

@@ -19,7 +19,7 @@ export default function Usuarios() {
     nombre: "",
     email: "",
     password: "",
-    rol: "OPERADOR",
+    rol: "TECNICO",
   });
   const [selectedUser, setSelectedUser] = useState<any>(null);
 
@@ -28,7 +28,6 @@ export default function Usuarios() {
     { value: "JEFE", label: "Jefe de Taller" },
     { value: "RECEPCIONISTA", label: "Recepcionista" },
     { value: "TECNICO", label: "Técnico" },
-    { value: "OPERADOR", label: "Operador" },
   ];
 
   const fetchUsuarios = async () => {
@@ -51,7 +50,7 @@ export default function Usuarios() {
     try {
       await axios.post("/api/usuarios", formData);
       setIsAddOpen(false);
-      setFormData({ nombre: "", email: "", password: "", rol: "OPERADOR" });
+      setFormData({ nombre: "", email: "", password: "", rol: "TECNICO" });
       fetchUsuarios();
     } catch (e) {
       console.error("Error creando usuario", e);
@@ -97,10 +96,10 @@ export default function Usuarios() {
         
         {currentUser?.rol === "ADMIN" && (
           <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
-            <DialogTrigger render={<Button className="bg-blue-600 hover:bg-blue-700" />}>
-                <UserPlus className="h-4 w-4 mr-2" />
-                Nuevo Usuario
-              </DialogTrigger>
+            <Button className="bg-blue-600 hover:bg-blue-700" render={<DialogTrigger />}>
+              <UserPlus className="h-4 w-4 mr-2" />
+              Nuevo Usuario
+            </Button>
             <DialogContent className="sm:max-w-[425px]">
               <DialogHeader>
                 <DialogTitle>Registrar Nuevo Usuario</DialogTitle>
@@ -193,14 +192,15 @@ export default function Usuarios() {
                           setIsEditOpen(open);
                           if (!open) setSelectedUser(null);
                         }}>
-                          <DialogTrigger render={<Button 
+                          <Button 
                               variant="ghost" 
                               size="sm" 
                               className="text-slate-500 hover:text-blue-600 mr-2"
                               onClick={() => setSelectedUser({...u, password: ""})}
-                            />}>
+                              render={<DialogTrigger />}
+                            >
                               <Pencil className="w-4 h-4" />
-                            </DialogTrigger>
+                            </Button>
                           <DialogContent className="sm:max-w-[425px]">
                             <DialogHeader>
                               <DialogTitle>Editar Usuario</DialogTitle>
