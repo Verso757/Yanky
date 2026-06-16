@@ -1,3 +1,4 @@
+import React from 'react';
 import { useEffect, useState, useRef } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -7,8 +8,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import axios from "@/src/lib/api";
+import { motion } from "motion/react";
 
-function VehicleCard({ vehiculo, onPhotoUpdated }: { vehiculo: any, onPhotoUpdated: () => void }) {
+const VehicleCard: React.FC<{ vehiculo: any, onPhotoUpdated: () => void, key?: React.Key }> = ({ vehiculo, onPhotoUpdated }) => {
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
@@ -266,7 +268,12 @@ export default function Clientes() {
   };
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto pb-10">
+    <motion.div 
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -10 }}
+      className="space-y-6 max-w-7xl mx-auto pb-10"
+    >
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-4 md:p-6 rounded-lg border border-slate-200 shadow-sm">
         <div>
           <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-slate-900 flex items-center">
@@ -450,6 +457,6 @@ export default function Clientes() {
           </div>
         )}
       </div>
-    </div>
+    </motion.div>
   );
 }

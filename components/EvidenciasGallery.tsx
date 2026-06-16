@@ -1,3 +1,4 @@
+import React from 'react';
 import { useState, useRef, useEffect } from "react";
 import axios from "@/src/lib/api";
 import { Camera, Image as ImageIcon, Upload } from "lucide-react";
@@ -40,11 +41,7 @@ export default function EvidenciasGallery({ entityId, entityType, categoria = "G
           if (entityType === 'orden') formData.append("ordenTrabajoId", entityId);
           formData.append("categoria", categoria);
 
-          await axios.post("/api/evidencias", formData, {
-            headers: {
-              "Content-Type": "multipart/form-data"
-            }
-          });
+          await axios.post("/api/evidencias", formData);
           fetchFotos();
         } catch (e) {
           alert("Error al subir foto");
@@ -80,7 +77,7 @@ export default function EvidenciasGallery({ entityId, entityType, categoria = "G
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
           {fotos.map((f) => (
-            <Dialog key={f.id}>
+            <div key={f.id}><Dialog>
               <DialogTrigger render={
                 <button type="button" className="aspect-square bg-slate-100 rounded-md overflow-hidden cursor-pointer border hover:border-indigo-500 transition-colors w-full p-0">
                   <img src={f.urlBase64} alt="Evidencia" className="w-full h-full object-cover" />
@@ -89,7 +86,7 @@ export default function EvidenciasGallery({ entityId, entityType, categoria = "G
               <DialogContent className="sm:max-w-3xl w-[95vw] border-0 p-0 overflow-hidden bg-transparent shadow-none">
                 <img src={f.urlBase64} alt="Evidencia Ampliada" className="w-full h-auto max-h-[85vh] object-contain rounded-md" />
               </DialogContent>
-            </Dialog>
+            </Dialog></div>
           ))}
         </div>
       )}

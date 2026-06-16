@@ -13,6 +13,7 @@ import { Plus, Search, CheckCircle, XCircle, Camera, User, Car, Image as ImageIc
 import axios from "@/src/lib/api";
 import { format } from "date-fns";
 import { useNavigate } from "react-router-dom";
+import { motion } from "motion/react";
 import EvidenciasGallery from "@/components/EvidenciasGallery";
 import { useAuth } from "@/src/context/AuthContext";
 
@@ -73,9 +74,7 @@ export default function Presupuestos() {
           formData.append("presupuestoId", res.data.id);
           formData.append("descripcion", `Foto captura inicial ${i + 1}`);
           
-          await axios.post("/api/evidencias", formData, {
-            headers: { "Content-Type": "multipart/form-data" }
-          });
+          await axios.post("/api/evidencias", formData);
         }
       }
 
@@ -151,7 +150,12 @@ export default function Presupuestos() {
   };
 
   return (
-    <div className="space-y-6">
+    <motion.div 
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -10 }}
+      className="space-y-6"
+    >
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold tracking-tight text-slate-900">Presupuestos Rápidos</h1>
@@ -437,6 +441,6 @@ export default function Presupuestos() {
           </div>
         </DialogContent>
       </Dialog>
-    </div>
+    </motion.div>
   );
 }

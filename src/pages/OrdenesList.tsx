@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Plus, Search, Settings, ArrowRight, Calendar } from "lucide-react";
 import axios from "@/src/lib/api";
 import { format } from "date-fns";
+import { motion } from "motion/react";
 
 export default function OrdenesList() {
   const [ordenes, setOrdenes] = useState<any[]>([]);
@@ -41,7 +42,12 @@ export default function OrdenesList() {
   });
 
   return (
-    <div className="space-y-6">
+    <motion.div 
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -10 }}
+      className="space-y-6"
+    >
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-4 md:p-6 rounded-lg border border-slate-200 shadow-sm">
         <div>
           <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-slate-900 flex items-center">
@@ -204,6 +210,6 @@ export default function OrdenesList() {
           </div>
         )}
       </div>
-    </div>
+    </motion.div>
   );
 }
