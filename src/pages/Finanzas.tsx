@@ -94,7 +94,7 @@ export default function Finanzas() {
           <DialogTrigger render={<Button className="bg-orange-600 hover:bg-orange-700 shadow-sm text-white" />}>
             <Plus className="mr-2 h-4 w-4" /> Registrar Gasto
           </DialogTrigger>
-          <DialogContent className="sm:max-w-[425px]">
+          <DialogContent className="sm:max-w-[425px] w-[95vw] max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>Nuevo Gasto</DialogTitle>
             </DialogHeader>

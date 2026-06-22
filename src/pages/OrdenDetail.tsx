@@ -146,11 +146,11 @@ export default function OrdenDetail() {
           </Button>
 
           <Dialog open={isTecnicoOpen} onOpenChange={setIsTecnicoOpen}>
-            <Button variant="outline" className="border-indigo-200 text-indigo-700 hover:bg-indigo-50" render={<DialogTrigger />}>
+            <Button variant="outline" className="border-indigo-200 text-indigo-700 hover:bg-indigo-50 w-full md:w-auto" render={<DialogTrigger />}>
               <User className="w-4 h-4 mr-2" />
               {ot.nombreMecanicoAsignado ? "Cambiar Técnico" : "Asignar Técnico"}
             </Button>
-            <DialogContent className="sm:max-w-md w-[95vw]">
+            <DialogContent className="sm:max-w-md w-[95vw] max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>Asignar Técnico a la Orden</DialogTitle>
               </DialogHeader>
@@ -174,10 +174,10 @@ export default function OrdenDetail() {
           </Dialog>
 
           <Dialog open={isEstadoOpen} onOpenChange={setIsEstadoOpen}>
-            <Button className="bg-indigo-600 hover:bg-indigo-700 text-white" render={<DialogTrigger />}>
+            <Button className="bg-indigo-600 hover:bg-indigo-700 text-white w-full md:w-auto" render={<DialogTrigger />}>
               Actualizar Estado
             </Button>
-            <DialogContent className="sm:max-w-md w-[95vw]">
+            <DialogContent className="sm:max-w-md w-[95vw] max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>Actualizar Estado de la Orden</DialogTitle>
               </DialogHeader>
@@ -248,7 +248,7 @@ export default function OrdenDetail() {
                 <Button className="w-full md:w-auto bg-slate-900 hover:bg-slate-800 text-white" render={<DialogTrigger />}>
                   <DollarSign className="w-4 h-4 mr-2" /> Registrar Nuevo Abono
                 </Button>
-                <DialogContent className="sm:max-w-md w-[95vw]">
+                <DialogContent className="sm:max-w-md w-[95vw] max-h-[90vh] overflow-y-auto">
                   <DialogHeader>
                     <DialogTitle>Registrar Pago / Abono</DialogTitle>
                   </DialogHeader>
@@ -452,6 +452,29 @@ export default function OrdenDetail() {
                      </p>
                   </div>
                 )}
+             </CardContent>
+          </Card>
+
+          <Card className="border-slate-200 shadow-sm">
+             <CardHeader className="pb-3 border-b border-slate-100">
+               <CardTitle className="text-sm font-semibold text-slate-700 flex items-center uppercase tracking-wider">
+                 <CheckCircle className="w-4 h-4 mr-2 text-indigo-500" />
+                 Check-in (Entrada)
+               </CardTitle>
+             </CardHeader>
+             <CardContent className="pt-4 space-y-3">
+                <div>
+                   <span className="text-xs text-slate-500 block">Nivel de gasolina</span>
+                   <p className="text-sm text-slate-700">{ot.nivelGasolina || "No registrado"}</p>
+                </div>
+                <div>
+                   <span className="text-xs text-slate-500 block">Inventario / Objetos</span>
+                   <p className="text-sm text-slate-700">{ot.inventario || "Ninguno"}</p>
+                </div>
+                <div>
+                   <span className="text-xs text-slate-500 block">Daños previos exteriores</span>
+                   <p className="text-sm text-slate-700">{ot.notasExterior || "Ninguno detallado"}</p>
+                </div>
              </CardContent>
           </Card>
         </div>

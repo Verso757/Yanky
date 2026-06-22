@@ -83,7 +83,7 @@ const VehicleCard: React.FC<{ vehiculo: any, onPhotoUpdated: () => void, key?: R
       </div>
 
       <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
-        <DialogContent className="sm:max-w-md w-[95vw]">
+        <DialogContent className="sm:max-w-md w-[95vw] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Car className="w-5 h-5 text-indigo-600" />
@@ -287,7 +287,7 @@ export default function Clientes() {
             <Plus className="mr-2 h-4 w-4" />
             Nuevo Cliente
           </Button>
-          <DialogContent className="sm:max-w-md w-[95vw]">
+          <DialogContent className="sm:max-w-md w-[95vw] max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>{editClient ? "Editar Cliente" : "Nuevo Cliente"}</DialogTitle>
             </DialogHeader>
@@ -343,7 +343,7 @@ export default function Clientes() {
 
       {/* Vehiculo Dialog (Hidden, but active when state is true) */}
       <Dialog open={isVehicleModalOpen} onOpenChange={setIsVehicleModalOpen}>
-        <DialogContent className="sm:max-w-md w-[95vw]">
+        <DialogContent className="sm:max-w-md w-[95vw] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Registrar Nuevo Vehículo</DialogTitle>
           </DialogHeader>

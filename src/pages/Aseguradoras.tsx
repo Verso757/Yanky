@@ -189,7 +189,7 @@ export default function Aseguradoras() {
 
       {/* Formulario Dialog */}
       <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-md w-[95vw] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{editingId ? "Editar Aseguradora" : "Nueva Aseguradora"}</DialogTitle>
           </DialogHeader>

@@ -411,13 +411,13 @@ export default function Presupuestos() {
       </Dialog>
 
       <Dialog open={formalizarOpen} onOpenChange={setFormalizarOpen}>
-        <DialogContent className="sm:max-w-md w-[95vw]">
+        <DialogContent className="sm:max-w-md w-[95vw] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Formalizar a OT</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-4 text-sm text-slate-600">
             <p>Para convertir este presupuesto aprobado en una Orden de Trabajo real, necesitamos datos formales del cliente y el vehículo (si no existen se crearán).</p>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                  <Label>Nombre Formal Cliente *</Label>
                  <Input value={fNombre} onChange={e=>setFNombre(e.target.value)} />
@@ -427,7 +427,7 @@ export default function Presupuestos() {
                  <Input value={fTel} onChange={e=>setFTel(e.target.value)} />
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                  <Label>Marca del Vehículo *</Label>
                  <Input value={fMarca} onChange={e=>setFMarca(e.target.value)} placeholder="Ej. Nissan" />

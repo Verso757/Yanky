@@ -101,7 +101,7 @@ export default function Usuarios() {
               <UserPlus className="h-4 w-4 mr-2" />
               Nuevo Usuario
             </Button>
-            <DialogContent className="sm:max-w-[425px]">
+            <DialogContent className="sm:max-w-[425px] w-[95vw] max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>Registrar Nuevo Usuario</DialogTitle>
               </DialogHeader>
@@ -202,7 +202,7 @@ export default function Usuarios() {
                             >
                               <Pencil className="w-4 h-4" />
                             </Button>
-                          <DialogContent className="sm:max-w-[425px]">
+                          <DialogContent className="sm:max-w-[425px] w-[95vw] max-h-[90vh] overflow-y-auto">
                             <DialogHeader>
                               <DialogTitle>Editar Usuario</DialogTitle>
                             </DialogHeader>

@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { ArrowLeft, Car, FileText, Settings, User } from "lucide-react";
+import { ArrowLeft, Car, FileText, Settings, User, ClipboardCheck } from "lucide-react";
 import axios from "@/src/lib/api";
 
 export default function OrdenNueva() {
@@ -19,6 +19,9 @@ export default function OrdenNueva() {
   const [vehiculoId, setVehiculoId] = useState("");
   const [descripcion, setDescripcion] = useState("");
   const [kilometraje, setKilometraje] = useState("");
+  const [nivelGasolina, setNivelGasolina] = useState("");
+  const [inventario, setInventario] = useState("");
+  const [notasExterior, setNotasExterior] = useState("");
   const [montoCotizado, setMontoCotizado] = useState("");
   
   useEffect(() => {
@@ -48,6 +51,9 @@ export default function OrdenNueva() {
         vehiculoId,
         descripcion,
         kilometraje: kilometraje || null,
+        nivelGasolina: nivelGasolina || null,
+        inventario: inventario || null,
+        notasExterior: notasExterior || null,
         montoCotizado: montoCotizado || 0,
         quienPaga: origen === "DIRECTO" ? "CLIENTE" : "ASEGURADORA"
       };
@@ -134,6 +140,63 @@ export default function OrdenNueva() {
       <Card className="border-slate-200 shadow-sm overflow-hidden">
         <CardHeader className="bg-slate-50 border-b border-slate-100 pb-4">
           <CardTitle className="text-lg flex items-center text-slate-800">
+            <ClipboardCheck className="w-5 h-5 mr-2 text-indigo-600" />
+            Check-in / Recepción
+          </CardTitle>
+          <CardDescription>Protocolo de ingreso del vehículo.</CardDescription>
+        </CardHeader>
+        <CardContent className="p-6 space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <Label className="text-slate-700">Kilometraje de Ingreso (Opcional)</Label>
+              <Input 
+                type="number" 
+                placeholder="Ej. 125000" 
+                className="bg-slate-50"
+                value={kilometraje}
+                onChange={(e) => setKilometraje(e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label className="text-slate-700">Nivel de Gasolina</Label>
+              <Select value={nivelGasolina} onValueChange={setNivelGasolina}>
+                <SelectTrigger className="bg-slate-50">
+                  <SelectValue placeholder="Seleccione el nivel..." />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="VACIO">Reserva / Vacío</SelectItem>
+                  <SelectItem value="1/4">1/4 Tanque</SelectItem>
+                  <SelectItem value="1/2">1/2 Tanque</SelectItem>
+                  <SelectItem value="3/4">3/4 Tanque</SelectItem>
+                  <SelectItem value="LLENO">Lleno</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2 md:col-span-2">
+              <Label className="text-slate-700">Inventario (Objetos personales, herramienta, llanta de refacción)</Label>
+              <Textarea 
+                placeholder="Ej. Gato hidráulico, cables pasa corriente, lentes en guantera..." 
+                className="min-h-[80px] bg-slate-50"
+                value={inventario}
+                onChange={(e) => setInventario(e.target.value)}
+              />
+            </div>
+            <div className="space-y-2 md:col-span-2">
+              <Label className="text-slate-700">Estado del Exterior (Rayones, golpes previos)</Label>
+              <Textarea 
+                placeholder="Ej. Ligero raspón en fascia delantera derecha..." 
+                className="min-h-[80px] bg-slate-50"
+                value={notasExterior}
+                onChange={(e) => setNotasExterior(e.target.value)}
+              />
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card className="border-slate-200 shadow-sm overflow-hidden">
+        <CardHeader className="bg-slate-50 border-b border-slate-100 pb-4">
+          <CardTitle className="text-lg flex items-center text-slate-800">
             <Settings className="w-5 h-5 mr-2 text-indigo-600" />
             Detalles del Servicio
           </CardTitle>
@@ -149,17 +212,7 @@ export default function OrdenNueva() {
                 onChange={(e) => setDescripcion(e.target.value)}
               />
             </div>
-            <div className="space-y-2">
-              <Label className="text-slate-700">Kilometraje de Ingreso (Opcional)</Label>
-              <Input 
-                type="number" 
-                placeholder="Ej. 125000" 
-                className="bg-slate-50"
-                value={kilometraje}
-                onChange={(e) => setKilometraje(e.target.value)}
-              />
-            </div>
-            <div className="space-y-2">
+            <div className="space-y-2 md:col-span-2">
               <Label className="text-slate-700">Monto Cotizado Base ($)</Label>
               <Input 
                 type="number" 
