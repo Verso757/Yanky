@@ -68,8 +68,13 @@ La base de datos relacional se estructura en las siguientes entidades principale
 
 La aplicación, al proveerse a otra IA para seguir desarrollando, debería abarcar luego:
 
-1. **Autenticación (Auth)**: Implementar un sistema de login real (ej. JWT o sesión de Express) diferenciando las vistas según el rol (Administrador vs Técnico).
-2. **Gestor de Evidencias (Fotos)**: Posibilidad de subir fotografías físicas del auto al ingreso y a la entrega, usando un bucket como AWS S3 o Cloudinary.
-3. **Módulo de Materiales/Refacciones**: Registro granular de cada tuerca o parte comprada para la OT en específico, logrando extraer la *rentabilidad exacta* (Utilidad = Cobro - (Materiales + Mano de obra)).
-4. **Exportación a PDF**: Generar formato PDF del recibo de ingreso o del detalle de diagnóstico para entregar físicamente al cliente.
-5. **Dashboard de Productividad del Técnico**: Estadísticas de qué mecánicos/hojalateros entregan más rápido y cuántos coches procesan.
+1. **Gestor de Evidencias (Fotos)**: Posibilidad de subir fotografías físicas del auto al ingreso y a la entrega.
+2. **Exportación a PDF**: Generar formato PDF del recibo de ingreso o del detalle de diagnóstico para entregar físicamente al cliente.
+3. **Dashboard de Productividad del Técnico**: Estadísticas de qué mecánicos/hojalateros entregan más rápido y cuántos coches procesan.
+
+*(Nota: La administración de compras/refacciones y pagos parciales ha sido despriorizada del MVP inicial, dando peso máximo a la precisión del Check-in y seguimiento del flujo Kanban).*
+
+## Características Completadas
+- Autenticación y Autorización basada en roles (Login, AuthContext, ProtectedRoute).
+- Seguimiento Visual Kanban para las órdenes de trabajo.
+- Control detallado de Check-in de vehículos (gasolina, inventario, daños).

@@ -1,20 +1,20 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://ai.google.dev/static/site-assets/images/share-ais-513315318.png" />
-</div>
+# FixFlow Taller
 
-# Run and deploy your AI Studio app
+FixFlow Taller es una aplicación web full-stack diseñada para gestionar las operaciones diarias de un taller automotriz, incluyendo la recepción de vehículos, seguimiento de órdenes de trabajo, y presupuestos.
 
-This contains everything you need to run your app locally.
+## Novedades Recientes
+- **Tablero Kanban Interactivo (Drag & Drop UI)**: Se incorporó una vista de Tablero visual para gestionar los estados de las órdenes de trabajo. Los elementos cambian de estado con botones de acción directa desde el tablero.
+- **Check-In Integral de Reparación**: Durante la creación de una Orden de Trabajo, ahora se documenta el estado inicial del vehículo, incluyendo Nivel de Gasolina, Inventario a bordo y Daños Exteriores Previos. Esta información se imprime en el protocolo de entrega final para evitar malentendidos.
+- **Flujo Simplificado**:
+  - Se enfatiza el check-in riguroso y seguimiento de aprobaciones.
+  - Se pospuso temporalmente el registro granular de refacciones/compras y el control de pagos parciales para mantener una interfaz ligera y enfocada en la visibilidad del proceso.
 
-View your app in AI Studio: https://ai.studio/apps/dcbcc89a-8e53-43ca-b4a8-76d5179c7ded
+## Módulos Activos
+1. **Órdenes de Trabajo**: Lista y Tablero de Kanban, con detalle completo de check-in.
+2. **Presupuestos (Recepción Express)**: Valoración rápida, aprobación y conversión directa a Órdenes de Trabajo.
+3. **Seguimiento Visual**: Panel táctico para ver en qué fase está cada vehículo (Ingresado, Diagnóstico, En Proceso, Listo).
+4. **Clientes y Vehículos**: Autoguardado de base de datos de usuarios.
 
-## Run Locally
-
-**Prerequisites:**  Node.js
-
-
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+## Puesta en marcha
+`npm install`
+`npm run dev`
