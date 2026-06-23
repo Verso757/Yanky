@@ -68,9 +68,9 @@ La base de datos relacional se estructura en las siguientes entidades principale
 
 La aplicación, al proveerse a otra IA para seguir desarrollando, debería abarcar luego:
 
-1. **Gestor de Evidencias (Fotos)**: Posibilidad de subir fotografías físicas del auto al ingreso y a la entrega.
-2. **Exportación a PDF**: Generar formato PDF del recibo de ingreso o del detalle de diagnóstico para entregar físicamente al cliente.
-3. **Dashboard de Productividad del Técnico**: Estadísticas de qué mecánicos/hojalateros entregan más rápido y cuántos coches procesan.
+1. ~~**Gestor de Evidencias (Fotos)**: Posibilidad de subir fotografías físicas del auto al ingreso y a la entrega.~~ (Completado)
+2. ~~**Exportación a PDF**: Generar formato PDF del recibo de ingreso o del detalle de diagnóstico para entregar físicamente al cliente.~~ (Completado)
+3. ~~**Dashboard de Productividad del Técnico**: Estadísticas de qué mecánicos/hojalateros entregan más rápido y cuántos coches procesan.~~ (Completado)
 
 *(Nota: La administración de compras/refacciones y pagos parciales ha sido despriorizada del MVP inicial, dando peso máximo a la precisión del Check-in y seguimiento del flujo Kanban).*
 
@@ -78,3 +78,6 @@ La aplicación, al proveerse a otra IA para seguir desarrollando, debería abarc
 - Autenticación y Autorización basada en roles (Login, AuthContext, ProtectedRoute).
 - Seguimiento Visual Kanban para las órdenes de trabajo.
 - Control detallado de Check-in de vehículos (gasolina, inventario, daños).
+- Evidencias Fotográficas de ingreso y entrega (subida optimizada).
+- Exportación Nativa a PDF del recibo pre-formateado.
+- Dashboard de Productividad y métricas por mecánico.

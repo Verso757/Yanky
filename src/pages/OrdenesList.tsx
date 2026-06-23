@@ -8,11 +8,13 @@ import { Plus, Search, Settings, ArrowRight, Calendar, LayoutGrid, List } from "
 import axios from "@/src/lib/api";
 import { format } from "date-fns";
 import { motion } from "motion/react";
+import { useAuth } from "../context/AuthContext";
 
 export default function OrdenesList() {
   const [ordenes, setOrdenes] = useState<any[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [viewMode, setViewMode] = useState<"list" | "board">("list");
+  const { user } = useAuth();
 
   useEffect(() => {
     fetchOrdenes();
@@ -21,10 +23,23 @@ export default function OrdenesList() {
   const fetchOrdenes = () => {
     axios.get("/api/ordenes").then((res) => {
       if (Array.isArray(res.data)) {
-        setOrdenes(res.data);
+        if (res.data.length === 0 && user?.email === 'admin@taller.com') {
+          // Provide mock data for the demo if database is empty
+          const mockData = [
+            { id: "1", folio: "OT-2026-1024", origen: "DIRECTO", estado: "INGRESADO", cliente: { nombre: "Juan Pérez", telefono: "555-0101" }, vehiculo: { marca: "Toyota", modelo: "Corolla", placas: "XYZ-123" }, montoCotizado: 1500, montoCobrado: 0, createdAt: new Date().toISOString() },
+            { id: "2", folio: "OT-2026-1025", origen: "SEGURO_FLUJO_A", estado: "EN_DIAGNOSTICO", nombreMecanicoAsignado: "Carlos Méndez", cliente: { nombre: "María Gómez", telefono: "555-0202" }, vehiculo: { marca: "Honda", modelo: "Civic", placas: "ABC-456" }, montoCotizado: 3200, montoCobrado: 1000, createdAt: new Date(Date.now() - 86400000).toISOString() },
+            { id: "3", folio: "OT-2026-1026", origen: "DIRECTO", estado: "EN_PROCESO", nombreMecanicoAsignado: "Luis Fernando", cliente: { nombre: "Pedro Martínez", telefono: "555-0303" }, vehiculo: { marca: "Nissan", modelo: "Versa", placas: "DEF-789" }, montoCotizado: 5400, montoCobrado: 5400, createdAt: new Date(Date.now() - 86400000 * 2).toISOString() },
+            { id: "4", folio: "OT-2026-1027", origen: "SEGURO_FLUJO_B", estado: "LISTO", nombreMecanicoAsignado: "Carlos Méndez", cliente: { nombre: "Ana Torres", telefono: "555-0404" }, vehiculo: { marca: "Ford", modelo: "Fiesta", placas: "GHI-012" }, montoCotizado: 2100, montoCobrado: 1000, createdAt: new Date(Date.now() - 86400000 * 3).toISOString() },
+            { id: "5", folio: "OT-2026-1028", origen: "DIRECTO", estado: "INGRESADO", cliente: { nombre: "Roberto Gómez", telefono: "555-0505" }, vehiculo: { marca: "Chevrolet", modelo: "Chevy", placas: "JKL-345" }, montoCotizado: 800, montoCobrado: 0, createdAt: new Date().toISOString() }
+          ];
+          setOrdenes(mockData);
+        } else {
+          setOrdenes(res.data);
+        }
       }
     }).catch(console.error);
   };
+
 
   const updateEstado = async (id: string, nuevoEstado: string) => {
     try {

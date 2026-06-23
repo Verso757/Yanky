@@ -26,8 +26,10 @@ export default function Dashboard() {
     nuevosClientes: 0,
     otsAsignadasPorEstado: [] as any[],
     otsSinAsignar: 0,
-    entregasProximas: 0
+    entregasProximas: 0,
+    rendimientoTecnicos: [] as any[]
   });
+  const [isLoading, setIsLoading] = useState(true);
 
   // Mock data for charts
   const [ingresosData, setIngresosData] = useState(isAdminDemo ? [
@@ -60,22 +62,45 @@ export default function Dashboard() {
         
         // Calcular distribución de estados
         const estadosCount: Record<string, number> = {};
+        const tecnicosStats: Record<string, { asignadas: number, completadas: number, nombre: string }> = {};
+
         ots.forEach(o => {
           estadosCount[o.estado] = (estadosCount[o.estado] || 0) + 1;
+          
+          if (o.mecanicoAsignado && o.nombreMecanicoAsignado) {
+             if (!tecnicosStats[o.mecanicoAsignado]) {
+                tecnicosStats[o.mecanicoAsignado] = { asignadas: 0, completadas: 0, nombre: o.nombreMecanicoAsignado };
+             }
+             tecnicosStats[o.mecanicoAsignado].asignadas++;
+             if (o.estado === "LISTO" || o.estado === "ENTREGADO") {
+                tecnicosStats[o.mecanicoAsignado].completadas++;
+             }
+          }
         });
+
+        const rendimientoArray = Object.values(tecnicosStats).sort((a,b) => b.completadas - a.completadas);
 
         const otsAsignadasPorEstado = Object.keys(estadosCount).map(k => ({
           name: k,
           value: estadosCount[k]
         }));
         
-        // Si es demo admin y no hay datos, ponemos unos fakes para la demo
+        // Si es demo admin y no hay datos, ponemos unos fakes para el pastel
         if (isAdminDemo && otsAsignadasPorEstado.length === 0) {
            otsAsignadasPorEstado.push(
              { name: 'INGRESADO', value: 5 },
              { name: 'EN_PROCESO', value: 12 },
              { name: 'LISTO', value: 3 },
              { name: 'ENTREGADO', value: 8 }
+           );
+        }
+
+        // Fakes para rendimiento (si no hay ninguno asignado)
+        if (isAdminDemo && rendimientoArray.length === 0) {
+           rendimientoArray.push(
+             { nombre: "Carlos Méndez", asignadas: 15, completadas: 12 },
+             { nombre: "Luis Fernando", asignadas: 10, completadas: 8 },
+             { nombre: "Roberto Gómez", asignadas: 8, completadas: 2 }
            );
         }
 
@@ -92,11 +117,21 @@ export default function Dashboard() {
           nuevosClientes: isAdminDemo ? 12 : 0,
           otsAsignadasPorEstado,
           otsSinAsignar: sinAsignar.length || (isAdminDemo ? 3 : 0),
-          entregasProximas: porEntregar.length || (isAdminDemo ? 2 : 0)
+          entregasProximas: porEntregar.length || (isAdminDemo ? 2 : 0),
+          rendimientoTecnicos: rendimientoArray
         });
       }
-    }).catch(console.error);
+    }).catch(console.error).finally(() => setIsLoading(false));
   }, []);
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-[50vh]">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+        <span className="ml-3 text-slate-500 font-medium">Cargando métricas...</span>
+      </div>
+    );
+  }
 
   return (
     <motion.div 
@@ -105,144 +140,131 @@ export default function Dashboard() {
       exit={{ opacity: 0, y: -10 }}
       className="space-y-8"
     >
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 pb-6">
         <div>
           <h1 className="text-3xl font-bold tracking-tight text-slate-900">Dashboard General</h1>
-          <p className="text-slate-500 mt-1 text-sm font-medium">Resumen de operaciones {canViewFinances ? "y finanzas " : ""}del taller.</p>
+          <p className="text-slate-500 mt-1 text-sm">Resumen de operaciones {canViewFinances ? "y finanzas " : ""}del taller.</p>
         </div>
       </div>
       
+      {/* Alertas */}
+      <div className="grid gap-4 md:grid-cols-3">
+         <Card className="col-span-1 border-l-4 border-l-orange-500 shadow-sm bg-white hover:bg-slate-50 transition-colors">
+           <CardHeader className="py-3 pb-1">
+             <CardTitle className="text-sm font-semibold text-orange-800 flex items-center uppercase tracking-wider">
+               <AlertTriangle className="h-4 w-4 mr-2" />
+               Entregas Próximas
+             </CardTitle>
+           </CardHeader>
+           <CardContent className="pb-3 text-sm text-slate-600">
+             <span className="font-bold text-orange-700 text-lg mr-1">{stats.entregasProximas}</span> OTs <span className="opacity-80">listas o críticas.</span>
+           </CardContent>
+         </Card>
+         
+         <Card className={`col-span-1 border-l-4 ${stats.otsSinAsignar > 0 ? "border-l-indigo-500" : "border-l-slate-400"} shadow-sm bg-white hover:bg-slate-50 transition-colors`}>
+           <CardHeader className="py-3 pb-1">
+             <CardTitle className={`text-sm font-semibold ${stats.otsSinAsignar > 0 ? "text-indigo-800" : "text-slate-800"} flex items-center uppercase tracking-wider`}>
+               <Wrench className="h-4 w-4 mr-2" />
+               OTs Sin Asignar
+             </CardTitle>
+           </CardHeader>
+           <CardContent className="pb-3 text-sm text-slate-600">
+             <span className={`font-bold text-lg mr-1 ${stats.otsSinAsignar > 0 ? "text-indigo-700" : "text-slate-700"}`}>{stats.otsSinAsignar}</span> OTs <span className="opacity-80">esperando mecánico.</span>
+           </CardContent>
+         </Card>
+         
+         <Card className="col-span-1 border-l-4 border-l-red-500 shadow-sm bg-white hover:bg-slate-50 transition-colors">
+           <CardHeader className="py-3 pb-1">
+             <CardTitle className="text-sm font-semibold text-red-800 flex items-center uppercase tracking-wider">
+               <Clock className="h-4 w-4 mr-2" />
+               Garantías
+             </CardTitle>
+           </CardHeader>
+           <CardContent className="pb-3 text-sm text-slate-600">
+             <span className="font-bold text-red-700 text-lg mr-1">3</span> Garantías <span className="opacity-80">por vencer.</span>
+           </CardContent>
+         </Card>
+      </div>
+
       {/* KPI Cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card className="rounded-2xl border-slate-200/60 shadow-sm overflow-hidden relative">
-          <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
-            <Wrench className="w-24 h-24" />
-          </div>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
-            <CardTitle className="text-sm font-semibold text-slate-600">OTs Activas</CardTitle>
-            <div className="w-10 h-10 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center shadow-inner">
-              <Wrench className="h-5 w-5" />
-            </div>
+        <Card className="rounded-xl border-slate-200 shadow-sm bg-white">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-slate-500">OTs Activas</CardTitle>
+            <Wrench className="h-4 w-4 text-slate-400" />
           </CardHeader>
-          <CardContent className="relative z-10">
-            <div className="text-4xl font-bold text-slate-900 tracking-tight">{stats.otsAbiertas}</div>
-            <div className="flex items-center gap-2 mt-3">
-              <span className="flex items-center text-xs font-medium text-emerald-600 bg-emerald-50 px-2 py-1 rounded-md">
-                <TrendingUp className="h-3 w-3 mr-1" />
-                +14%
-              </span>
-              <span className="text-xs text-slate-400 font-medium">vs mes anterior</span>
-            </div>
+          <CardContent>
+            <div className="text-3xl font-bold text-slate-900">{stats.otsAbiertas}</div>
+            <p className="text-xs text-emerald-600 mt-1 font-medium flex items-center">
+              <TrendingUp className="h-3 w-3 mr-1" /> +14% mes actual
+            </p>
           </CardContent>
         </Card>
 
         {canViewFinances ? (
           <>
-            <Card className="rounded-2xl border-slate-200/60 shadow-sm overflow-hidden relative">
-              <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
-                <CircleDollarSign className="w-24 h-24" />
-              </div>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
-                <CardTitle className="text-sm font-semibold text-slate-600">Ingresos Mensuales</CardTitle>
-                <div className="w-10 h-10 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center shadow-inner">
-                  <CircleDollarSign className="h-5 w-5" />
-                </div>
+            <Card className="rounded-xl border-slate-200 shadow-sm bg-white">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium text-slate-500">Ingresos Mes</CardTitle>
+                <CircleDollarSign className="h-4 w-4 text-emerald-500" />
               </CardHeader>
-              <CardContent className="relative z-10">
-                <div className="text-4xl font-bold text-slate-900 tracking-tight">${stats.ingresosMes.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}</div>
-                <div className="flex items-center gap-2 mt-3">
-                  <span className="flex items-center text-xs font-medium text-emerald-600 bg-emerald-50 px-2 py-1 rounded-md">
-                    <TrendingUp className="h-3 w-3 mr-1" />
-                    +8%
-                  </span>
-                  <span className="text-xs text-slate-400 font-medium">vs mes anterior</span>
-                </div>
+              <CardContent>
+                <div className="text-3xl font-bold text-slate-900">${stats.ingresosMes.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}</div>
+                <p className="text-xs text-emerald-600 mt-1 font-medium flex items-center">
+                  <TrendingUp className="h-3 w-3 mr-1" /> +8% vs mes
+                </p>
               </CardContent>
             </Card>
 
-            <Card className="rounded-2xl border-slate-200/60 shadow-sm overflow-hidden relative">
-              <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
-                <AlertTriangle className="w-24 h-24" />
-              </div>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
-                <CardTitle className="text-sm font-semibold text-slate-600">Por Cobrar (Total)</CardTitle>
-                <div className="w-10 h-10 bg-orange-50 text-orange-600 rounded-xl flex items-center justify-center shadow-inner">
-                  <AlertTriangle className="h-5 w-5" />
-                </div>
+            <Card className="rounded-xl border-slate-200 shadow-sm bg-white">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium text-slate-500">Por Cobrar</CardTitle>
+                <AlertTriangle className="h-4 w-4 text-orange-500" />
               </CardHeader>
-              <CardContent className="relative z-10">
-                <div className="text-4xl font-bold text-slate-900 tracking-tight">${(stats.cobrosPendientesDirectos + stats.cobrosPendientesSeguros).toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}</div>
-                <div className="flex items-center gap-2 mt-3">
-                  <span className="flex items-center text-xs font-medium text-orange-600 bg-orange-50 px-2 py-1 rounded-md">
-                    <TrendingUp className="h-3 w-3 mr-1" />
-                    +2% de atraso
-                  </span>
-                </div>
+              <CardContent>
+                <div className="text-3xl font-bold text-slate-900">${(stats.cobrosPendientesDirectos + stats.cobrosPendientesSeguros).toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}</div>
+                <p className="text-xs text-slate-500 mt-1 font-medium">
+                  Directo + Aseguradora
+                </p>
               </CardContent>
             </Card>
           </>
         ) : (
           <>
-            <Card className="rounded-2xl border-slate-200/60 shadow-sm overflow-hidden relative">
-              <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
-                <AlertTriangle className="w-24 h-24" />
-              </div>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
-                <CardTitle className="text-sm font-semibold text-slate-600">OTs por Asignar</CardTitle>
-                <div className="w-10 h-10 bg-orange-50 text-orange-600 rounded-xl flex items-center justify-center shadow-inner">
-                  <AlertTriangle className="h-5 w-5" />
-                </div>
+            <Card className="rounded-xl border-slate-200 shadow-sm bg-white">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium text-slate-500">OTs por Asignar</CardTitle>
+                <AlertTriangle className="h-4 w-4 text-orange-400" />
               </CardHeader>
-              <CardContent className="relative z-10">
-                <div className="text-4xl font-bold text-slate-900 tracking-tight">{stats.otsSinAsignar}</div>
-                <div className="flex items-center gap-2 mt-3">
-                  <span className="text-xs text-orange-600 font-medium">Pendientes de revisión</span>
-                </div>
+              <CardContent>
+                <div className="text-3xl font-bold text-slate-900">{stats.otsSinAsignar}</div>
+                <p className="text-xs text-orange-600 mt-1 font-medium">Pendientes de revisión</p>
               </CardContent>
             </Card>
 
-            <Card className="rounded-2xl border-slate-200/60 shadow-sm overflow-hidden relative">
-              <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
-                <Car className="w-24 h-24" />
-              </div>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
-                <CardTitle className="text-sm font-semibold text-slate-600">Vehículos en Taller</CardTitle>
-                <div className="w-10 h-10 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center shadow-inner">
-                  <Car className="h-5 w-5" />
-                </div>
+            <Card className="rounded-xl border-slate-200 shadow-sm bg-white">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium text-slate-500">Vehículos en Taller</CardTitle>
+                <Car className="h-4 w-4 text-indigo-400" />
               </CardHeader>
-              <CardContent className="relative z-10">
-                <div className="text-4xl font-bold text-slate-900 tracking-tight">{stats.vehiculosEnTaller}</div>
-                <div className="flex items-center gap-2 mt-3">
-                  <span className="flex items-center text-xs font-medium text-emerald-600 bg-emerald-50 px-2 py-1 rounded-md">
-                    <CheckCircle2 className="h-3 w-3 mr-1" />
-                    Capacidad normal
-                  </span>
-                </div>
+              <CardContent>
+                <div className="text-3xl font-bold text-slate-900">{stats.vehiculosEnTaller}</div>
+                <p className="text-xs text-slate-500 mt-1 font-medium">Capacidad normal</p>
               </CardContent>
             </Card>
           </>
         )}
 
-        <Card className="rounded-2xl border-slate-200/60 shadow-sm overflow-hidden relative">
-          <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
-            <Users className="w-24 h-24" />
-          </div>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
-            <CardTitle className="text-sm font-semibold text-slate-600">Nuevos Clientes</CardTitle>
-            <div className="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center shadow-inner">
-              <Users className="h-5 w-5" />
-            </div>
+        <Card className="rounded-xl border-slate-200 shadow-sm bg-white">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-slate-500">Nuevos Clientes</CardTitle>
+            <Users className="h-4 w-4 text-indigo-500" />
           </CardHeader>
-          <CardContent className="relative z-10">
-            <div className="text-4xl font-bold text-slate-900 tracking-tight">{stats.nuevosClientes}</div>
-            <div className="flex items-center gap-2 mt-3">
-              <span className="flex items-center text-xs font-medium text-red-600 bg-red-50 px-2 py-1 rounded-md">
-                <TrendingDown className="h-3 w-3 mr-1" />
-                -5%
-              </span>
-              <span className="text-xs text-slate-400 font-medium">vs mes anterior</span>
-            </div>
+          <CardContent>
+            <div className="text-3xl font-bold text-slate-900">{stats.nuevosClientes}</div>
+            <p className="text-xs text-red-600 mt-1 font-medium flex items-center">
+              <TrendingDown className="h-3 w-3 mr-1" /> -5% vs mes
+            </p>
           </CardContent>
         </Card>
       </div>
@@ -251,34 +273,34 @@ export default function Dashboard() {
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {/* Ingresos vs Gastos (Semanal) */}
         {canViewFinances && (
-          <Card className="col-span-1 lg:col-span-2 shadow-sm rounded-2xl border-slate-200/60">
-            <CardHeader>
-              <CardTitle className="text-lg font-bold text-slate-800">Flujo de Caja Semanal</CardTitle>
-              <CardDescription className="text-sm">Comparativa de ingresos facturados vs gastos de operación.</CardDescription>
+          <Card className="col-span-1 md:col-span-2 lg:col-span-2 shadow-sm rounded-xl border-slate-200">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base font-semibold text-slate-800">Flujo de Caja Semanal</CardTitle>
+              <CardDescription className="text-xs">Comparativa de ingresos facturados vs gastos de operación.</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="h-[300px] w-full">
+              <div className="h-[260px] w-full mt-4">
                 <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={ingresosData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+                  <AreaChart data={ingresosData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                     <defs>
                       <linearGradient id="colorIngresos" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#10b981" stopOpacity={0.8}/>
+                        <stop offset="5%" stopColor="#10b981" stopOpacity={0.4}/>
                         <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
                       </linearGradient>
                       <linearGradient id="colorGastos" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#f43f5e" stopOpacity={0.8}/>
+                        <stop offset="5%" stopColor="#f43f5e" stopOpacity={0.4}/>
                         <stop offset="95%" stopColor="#f43f5e" stopOpacity={0}/>
                       </linearGradient>
                     </defs>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
-                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12 }} dy={10} />
-                    <YAxis axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12 }} dx={-10} />
+                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 11 }} dy={10} />
+                    <YAxis axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 11 }} dx={-10} />
                     <Tooltip 
-                      contentStyle={{ borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)' }}
+                      contentStyle={{ borderRadius: '8px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)', fontSize: '12px' }}
                     />
                     <Legend iconType="circle" wrapperStyle={{ paddingTop: '20px', fontSize: '12px' }}/>
-                    <Area type="monotone" dataKey="ingresos" name="Ingresos" stroke="#10b981" strokeWidth={3} fillOpacity={1} fill="url(#colorIngresos)" />
-                    <Area type="monotone" dataKey="gastos" name="Gastos" stroke="#f43f5e" strokeWidth={3} fillOpacity={1} fill="url(#colorGastos)" />
+                    <Area type="monotone" dataKey="ingresos" name="Ingresos" stroke="#10b981" strokeWidth={2} fillOpacity={1} fill="url(#colorIngresos)" />
+                    <Area type="monotone" dataKey="gastos" name="Gastos" stroke="#f43f5e" strokeWidth={2} fillOpacity={1} fill="url(#colorGastos)" />
                   </AreaChart>
                 </ResponsiveContainer>
               </div>
@@ -286,105 +308,118 @@ export default function Dashboard() {
           </Card>
         )}
 
-        {/* Rendimiento Anual (Ingresos vs Completadas) - Visible for all, but takes full width if finances hidden */}
-        <Card className={`shadow-sm rounded-2xl border-slate-200/60 ${canViewFinances ? 'col-span-1 lg:col-span-3' : 'col-span-1 lg:col-span-2'}`}>
-          <CardHeader>
-            <CardTitle className="text-lg font-bold text-slate-800">Rendimiento Operativo (Semestral)</CardTitle>
-            <CardDescription className="text-sm">Relación entre órdenes de trabajo creadas y completadas.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="h-[300px] w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={rendimientoSemanal} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
-                  <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12 }} dy={10} />
-                  <YAxis axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12 }} dx={-10} />
-                  <Tooltip 
-                    cursor={{fill: '#f8fafc'}}
-                    contentStyle={{ borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
-                  />
-                  <Legend iconType="circle" wrapperStyle={{ paddingTop: '20px', fontSize: '12px' }}/>
-                  <Bar dataKey="ots" name="OTs Recibidas" fill="#3b82f6" radius={[6, 6, 0, 0]} maxBarSize={40} />
-                  <Bar dataKey="completadas" name="OTs Completadas" fill="#8b5cf6" radius={[6, 6, 0, 0]} maxBarSize={40} />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </CardContent>
-        </Card>
-
         {/* Distribución de Estados */}
-        <Card className="col-span-1 shadow-sm rounded-2xl border-slate-200/60">
-          <CardHeader>
-            <CardTitle className="text-lg font-bold text-slate-800">Estado del Taller</CardTitle>
-            <CardDescription className="text-sm">Distribución de órdenes por estado actual.</CardDescription>
+        <Card className="col-span-1 shadow-sm rounded-xl border-slate-200">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base font-semibold text-slate-800">Estado Actual</CardTitle>
+            <CardDescription className="text-xs">Distribución global de inventario.</CardDescription>
           </CardHeader>
-          <CardContent className="flex flex-col items-center justify-center">
-            <div className="h-[250px] w-full">
+          <CardContent className="flex flex-col items-center justify-center p-2">
+            <div className="h-[200px] w-full mt-2">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
                     data={stats.otsAsignadasPorEstado}
                     cx="50%"
                     cy="50%"
-                    innerRadius={70}
-                    outerRadius={100}
-                    paddingAngle={5}
+                    innerRadius={50}
+                    outerRadius={80}
+                    paddingAngle={3}
                     dataKey="value"
                     stroke="none"
                   >
                     {stats.otsAsignadasPorEstado.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
                   </Pie>
                   <Tooltip 
-                    contentStyle={{ borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
-                    itemStyle={{ color: '#1e293b', fontSize: '14px', fontWeight: '500' }}
+                    contentStyle={{ borderRadius: '8px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)', fontSize: '12px' }}
+                    itemStyle={{ color: '#1e293b', fontSize: '12px', fontWeight: '500' }}
                   />
-                  <Legend iconType="circle" layout="horizontal" verticalAlign="bottom" wrapperStyle={{ fontSize: '12px' }} />
+                  <Legend iconType="circle" layout="vertical" verticalAlign="middle" align="right" wrapperStyle={{ fontSize: '11px', lineHeight: '20px' }} />
                 </PieChart>
               </ResponsiveContainer>
             </div>
           </CardContent>
         </Card>
-      </div>
 
-      {/* Alertas */}
-      <div className="grid gap-4 md:grid-cols-3">
-         <Card className="col-span-1 border-l-4 border-l-orange-500 shadow-sm bg-orange-50/30">
-           <CardHeader className="py-4">
-             <CardTitle className="text-base text-orange-800 flex items-center">
-               <AlertTriangle className="h-4 w-4 mr-2" />
-               ATENCIÓN: Entregas (&lt; 48h)
-             </CardTitle>
-           </CardHeader>
-           <CardContent className="pb-4">
-             <p className="text-sm text-slate-600">{stats.entregasProximas} OTs próximas a entrega crítica (o listas para entregar).</p>
-           </CardContent>
-         </Card>
-         
-         <Card className={`col-span-1 border-l-4 ${stats.otsSinAsignar > 0 ? "border-l-indigo-500 bg-indigo-50/30" : "border-l-slate-400 bg-slate-50/50"} shadow-sm`}>
-           <CardHeader className="py-4">
-             <CardTitle className={`text-base ${stats.otsSinAsignar > 0 ? "text-indigo-800" : "text-slate-800"} flex items-center`}>
-               <Wrench className="h-4 w-4 mr-2" />
-               OTs Sin Asignar
-             </CardTitle>
-           </CardHeader>
-           <CardContent className="pb-4">
-             <p className="text-sm text-slate-600">{stats.otsSinAsignar} OTs esperando diagnóstico o asignación de mecánico.</p>
-           </CardContent>
-         </Card>
-         
-         <Card className="col-span-1 border-l-4 border-l-red-500 shadow-sm bg-red-50/30">
-           <CardHeader className="py-4">
-             <CardTitle className="text-base text-red-800 flex items-center">
-               <Clock className="h-4 w-4 mr-2" />
-               Garantías (vencen &lt; 30d)
-             </CardTitle>
-           </CardHeader>
-           <CardContent className="pb-4">
-             <p className="text-sm text-slate-600">3 garantías a punto de expirar. Se sugiere contactar a los clientes.</p>
-           </CardContent>
-         </Card>
+        {/* Rendimiento Anual (Ingresos vs Completadas) */}
+        <Card className="col-span-1 md:col-span-2 lg:col-span-2 shadow-sm rounded-xl border-slate-200">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base font-semibold text-slate-800">Rendimiento Operativo</CardTitle>
+            <CardDescription className="text-xs">Órdenes recibidas vs completadas (Semestral).</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="h-[220px] w-full mt-4">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={rendimientoSemanal} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                  <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 11 }} dy={10} />
+                  <YAxis axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 11 }} dx={-10} />
+                  <Tooltip 
+                    cursor={{fill: '#f8fafc'}}
+                    contentStyle={{ borderRadius: '8px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)', fontSize: '12px' }}
+                  />
+                  <Legend iconType="circle" wrapperStyle={{ paddingTop: '15px', fontSize: '12px' }}/>
+                  <Bar dataKey="ots" name="OTs Recibidas" fill="#94a3b8" radius={[4, 4, 0, 0]} maxBarSize={32} />
+                  <Bar dataKey="completadas" name="OTs Completadas" fill="#6366f1" radius={[4, 4, 0, 0]} maxBarSize={32} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Productividad Tecnicos */}
+        <Card className="col-span-1 shadow-sm rounded-xl border-slate-200 overflow-hidden">
+          <CardHeader className="bg-slate-50/50 border-b border-slate-100 pb-3 p-4">
+            <CardTitle className="text-base font-semibold text-slate-800 flex items-center">
+              <Users className="h-4 w-4 mr-2 text-indigo-500" />
+              Rendimiento del Equipo
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-0">
+            <div className="overflow-x-auto h-[252px] overflow-y-auto">
+              <table className="w-full text-sm text-left min-w-[320px]">
+                <thead className="bg-white text-slate-500 font-medium border-b border-slate-100 text-xs uppercase tracking-wider sticky top-0">
+                  <tr>
+                    <th className="px-4 py-3">Técnico</th>
+                    <th className="px-4 py-3 text-center">Eficiencia</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100 bg-white">
+                  {stats.rendimientoTecnicos.map((t, idx) => (
+                    <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
+                      <td className="px-4 py-3 font-semibold text-slate-700">
+                        {t.nombre}
+                        <div className="text-xs text-slate-400 font-normal mt-0.5">{t.completadas} / {t.asignadas} OTs terminadas</div>
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="flex items-center justify-end gap-2 text-right">
+                          <div className="flex-1 max-w-[80px] h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                            <div 
+                              className={`h-full rounded-full ${t.completadas/t.asignadas > 0.7 ? 'bg-emerald-500' : 'bg-orange-500'}`}
+                              style={{width: `${Math.round((t.completadas / (t.asignadas||1)) * 100)}%`}}
+                            />
+                          </div>
+                          <span className="text-xs font-semibold text-slate-500 w-8">
+                            {Math.round((t.completadas / (t.asignadas||1)) * 100)}%
+                          </span>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                  {stats.rendimientoTecnicos.length === 0 && (
+                     <tr>
+                       <td colSpan={2} className="px-4 py-8 text-center text-slate-500 text-xs">
+                         No hay datos de rendimiento.
+                       </td>
+                     </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </motion.div>
   );

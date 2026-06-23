@@ -244,15 +244,15 @@ function Navigation() {
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden bg-[#FAFAFA]">
         {/* Mobile Header */}
         <header className="md:hidden flex items-center justify-between h-16 px-4 bg-white/80 backdrop-blur-md border-b border-slate-200/60 sticky top-0 z-30">
+          <button onClick={() => setSidebarOpen(true)} className="p-2 -ml-2 text-slate-600 hover:bg-slate-100 rounded-md transition-colors">
+            <Menu className="h-6 w-6" />
+          </button>
           <div className="font-bold text-lg text-slate-900 flex items-center gap-2">
+            Yanky Taller
             <div className="bg-blue-600 text-white p-1 rounded-md shadow-sm">
               <Wrench className="w-4 h-4" />
             </div>
-            Yanky Taller
           </div>
-          <button onClick={() => setSidebarOpen(true)} className="p-2 text-slate-600 hover:bg-slate-100 rounded-md transition-colors">
-            <Menu className="h-6 w-6" />
-          </button>
         </header>
 
         <main className="flex-1 overflow-y-auto p-4 md:p-8">

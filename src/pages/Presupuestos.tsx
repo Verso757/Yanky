@@ -34,7 +34,7 @@ export default function Presupuestos() {
   const [clienteNombre, setClienteNombre] = useState("");
   const [clienteTelefono, setClienteTelefono] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [fotos, setFotos] = useState<FileList | null>(null);
+  const [fotos, setFotos] = useState<File[]>([]);
 
   const fetchPresupuestos = () => {
     axios.get("/api/presupuestos").then((res) => {
@@ -45,6 +45,50 @@ export default function Presupuestos() {
   useEffect(() => {
     fetchPresupuestos();
   }, []);
+
+  const procesarArchivo = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = (event) => {
+        const img = new Image();
+        img.src = event.target?.result as string;
+        img.onload = () => {
+          const MAX_WIDTH = 1200;
+          const MAX_HEIGHT = 1200;
+          let width = img.width;
+          let height = img.height;
+
+          if (width > height) {
+            if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
+          } else {
+            if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; }
+          }
+
+          const canvas = document.createElement("canvas");
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext("2d");
+          ctx?.drawImage(img, 0, 0, width, height);
+          resolve(canvas.toDataURL("image/jpeg", 0.7));
+        };
+        img.onerror = (err) => reject(err);
+      };
+      reader.onerror = (err) => reject(err);
+    });
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const newFiles = Array.from(e.target.files);
+      setFotos((prev) => [...prev, ...newFiles]);
+      e.target.value = '';
+    }
+  };
+
+  const removeFoto = (index: number) => {
+    setFotos((prev) => prev.filter((_, i) => i !== index));
+  };
 
   const handleCreateGroup = async () => {
     if (!placas || !descripcionDano) {
@@ -69,8 +113,18 @@ export default function Presupuestos() {
       if (fotos && fotos.length > 0) {
         for (let i = 0; i < fotos.length; i++) {
           const file = fotos[i];
+          const base64Str = await procesarArchivo(file);
+          
+          const byteString = atob(base64Str.split(",")[1]);
+          const mimeString = base64Str.split(",")[0].split(":")[1].split(";")[0];
+          const ab = new ArrayBuffer(byteString.length);
+          const ia = new Uint8Array(ab);
+          for (let j = 0; j < byteString.length; j++) ia[j] = byteString.charCodeAt(j);
+          const blob = new Blob([ab], { type: mimeString });
+          const smallFile = new File([blob], file.name, { type: mimeString });
+
           const formData = new FormData();
-          formData.append("file", file);
+          formData.append("file", smallFile);
           formData.append("presupuestoId", res.data.id);
           formData.append("descripcion", `Foto captura inicial ${i + 1}`);
           
@@ -86,7 +140,7 @@ export default function Presupuestos() {
       setMontoEstimado("");
       setClienteNombre("");
       setClienteTelefono("");
-      setFotos(null);
+      setFotos([]);
     } catch (e) {
       alert("Error al crear presupuesto");
     } finally {
@@ -224,18 +278,41 @@ export default function Presupuestos() {
                   <div className="space-y-2">
                     <Label>Tomar Foto o Subir Imágenes</Label>
                     <div className="border-2 border-dashed border-slate-200 rounded-lg p-6 text-center hover:bg-slate-50 transition-colors">
-                      <Input 
-                        type="file" 
-                        accept="image/*" 
-                        capture="environment" 
-                        multiple 
-                        onChange={(e) => setFotos(e.target.files)} 
-                        className="mx-auto max-w-[250px]"
-                      />
-                      <p className="text-xs text-slate-500 mt-2">Puedes tomar una o múltiples fotos del vehículo ahora mismo.</p>
+                      <div className="flex justify-center items-center mb-4">
+                        <Button variant="outline" onClick={() => document.getElementById('foto-upload')?.click()}>
+                          <Camera className="w-4 h-4 mr-2" />
+                          Seleccionar o Tomar Foto(s)
+                        </Button>
+                        <Input 
+                          id="foto-upload"
+                          type="file" 
+                          accept="image/*" 
+                          multiple 
+                          onChange={handleFileChange} 
+                          className="hidden"
+                        />
+                      </div>
+                      <p className="text-xs text-slate-500 mb-4">Puedes tomar o seleccionar múltiples fotos del vehículo.</p>
+                      
                       {fotos && fotos.length > 0 && (
-                        <div className="mt-4 inline-flex items-center text-sm text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full">
-                          <CheckCircle className="w-4 h-4 mr-1" /> {fotos.length} archivo(s) seleccionado(s)
+                        <div className="border border-slate-200 rounded-md p-3 bg-white">
+                          <h4 className="text-xs font-semibold text-slate-700 mb-2 border-b pb-1 text-left">
+                            <CheckCircle className="w-3 h-3 text-emerald-500 inline mr-1 mb-0.5" />
+                            {fotos.length} archivo(s) listo(s) para subir
+                          </h4>
+                          <div className="flex flex-wrap gap-2 mt-2">
+                            {fotos.map((f, idx) => (
+                              <div key={idx} className="flex items-center gap-1 bg-slate-100 text-slate-700 text-xs px-2 py-1 rounded">
+                                <span className="truncate max-w-[120px]">{f.name}</span>
+                                <button 
+                                  onClick={() => removeFoto(idx)} 
+                                  className="text-slate-400 hover:text-red-500 transition-colors"
+                                >
+                                  <XCircle className="w-4 h-4" />
+                                </button>
+                              </div>
+                            ))}
+                          </div>
                         </div>
                       )}
                     </div>

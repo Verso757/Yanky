@@ -4,7 +4,7 @@ import axios from "@/src/lib/api";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, User, Car, Settings, MessageCircle, DollarSign, Calendar, CheckCircle } from "lucide-react";
+import { ArrowLeft, User, Car, Settings, MessageCircle, DollarSign, Calendar, CheckCircle, FileText, Printer } from "lucide-react";
 import { format } from "date-fns";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -114,12 +114,78 @@ export default function OrdenDetail() {
     }
   };
 
+  const handlePrint = () => {
+    window.print();
+  };
+
   if (!ot) return <div className="p-8 text-center text-slate-500">Cargando detalles...</div>;
 
   const wappMessage = encodeURIComponent(`Hola ${ot.cliente.nombre}, te contactamos de Yanky Taller sobre tu vehiculo ${ot.vehiculo.marca} placas ${ot.vehiculo.placas}.`);
 
   return (
-    <div className="space-y-6 max-w-6xl mx-auto pb-10">
+    <>
+      {/* --- VISTA DE IMPRESIÓN (PDF) --- */}
+      <div className="hidden print:block font-sans text-black bg-white w-full">
+        <div className="border-b-2 border-slate-800 pb-4 mb-6">
+          <h1 className="text-3xl font-bold text-slate-900">Yanky Taller Automotriz</h1>
+          <p className="text-sm text-slate-500">Folio: {ot.folio} - {ot.origen?.replace(/_/g, " ")}</p>
+          <p className="text-sm text-slate-500">Fecha Ingreso: {ot.createdAt ? format(new Date(ot.createdAt), "dd/MM/yyyy HH:mm") : "--"}</p>
+        </div>
+
+        <div className="grid grid-cols-2 gap-8 mb-8">
+          <div>
+            <h3 className="font-bold border-b border-slate-300 mb-2 pb-1">Datos del Cliente</h3>
+            <p className="text-sm"><strong>Nombre:</strong> {ot.cliente.nombre}</p>
+            <p className="text-sm"><strong>Teléfono:</strong> {ot.cliente.telefono}</p>
+            <p className="text-sm"><strong>Tipo:</strong> {ot.cliente.tipo}</p>
+          </div>
+          <div>
+            <h3 className="font-bold border-b border-slate-300 mb-2 pb-1">Datos del Vehículo</h3>
+            <p className="text-sm"><strong>Vehículo:</strong> {ot.vehiculo.marca} {ot.vehiculo.modelo} {ot.vehiculo.anio}</p>
+            <p className="text-sm"><strong>Color:</strong> {ot.vehiculo.color}</p>
+            <p className="text-sm"><strong>Placas:</strong> {ot.vehiculo.placas}</p>
+            <p className="text-sm"><strong>Kilometraje:</strong> {ot.kilometraje?.toLocaleString() || "N/A"} km</p>
+          </div>
+        </div>
+
+        <div className="mb-8">
+          <h3 className="font-bold border-b border-slate-300 mb-2 pb-1">Check-in de Ingreso</h3>
+          <table className="w-full text-sm text-left border border-slate-200">
+            <tbody>
+              <tr className="border-b border-slate-200"><td className="p-2 font-medium bg-slate-50 w-1/3">Nivel de Gasolina:</td><td className="p-2">{ot.nivelGasolina || "No registrado"}</td></tr>
+              <tr className="border-b border-slate-200"><td className="p-2 font-medium bg-slate-50 w-1/3">Inventario / Objetos:</td><td className="p-2">{ot.inventario || "Ninguno"}</td></tr>
+              <tr className="border-b border-slate-200"><td className="p-2 font-medium bg-slate-50 w-1/3">Daños Previos:</td><td className="p-2">{ot.notasExterior || "Ninguno detallado"}</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div className="mb-8">
+          <h3 className="font-bold border-b border-slate-300 mb-2 pb-1">Descripción del Servicio</h3>
+          <p className="text-sm whitespace-pre-wrap">{ot.descripcion}</p>
+        </div>
+
+        <div className="mb-8 ml-auto w-1/2">
+          <table className="w-full text-sm text-right border border-slate-200">
+            <tbody>
+              <tr className="border-b border-slate-200"><td className="p-2 font-medium bg-slate-50 w-2/3">Cotización Base:</td><td className="p-2">${ot.montoCotizado?.toFixed(2)}</td></tr>
+              <tr className="border-b border-slate-200"><td className="p-2 font-medium bg-slate-50 w-2/3">Pagos / Abonos:</td><td className="p-2">${ot.montoCobrado?.toFixed(2)}</td></tr>
+              <tr><td className="p-2 font-bold bg-slate-100 w-2/3">Saldo Pendiente:</td><td className="p-2 font-bold">${((ot.montoCotizado || 0) - (ot.montoCobrado || 0)).toFixed(2)}</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div className="mt-20 pt-10 grid grid-cols-2 gap-16 text-center text-sm">
+          <div>
+            <div className="border-t border-slate-800 w-3/4 mx-auto pt-2">Firma del Cliente de Conformidad</div>
+          </div>
+          <div>
+            <div className="border-t border-slate-800 w-3/4 mx-auto pt-2">Firma del Taller (Recepción)</div>
+          </div>
+        </div>
+      </div>
+
+      {/* --- VISTA NORMAL DE PANTALLA --- */}
+      <div className="space-y-6 max-w-6xl mx-auto pb-10 print:hidden">
       {/* Header Area */}
       <div className="bg-white p-4 md:p-6 rounded-lg border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex items-center space-x-4">
@@ -140,6 +206,11 @@ export default function OrdenDetail() {
           </div>
         </div>
         <div className="flex flex-wrap gap-2">
+          <Button nativeButton={false} variant="outline" className="text-slate-600 border-slate-200 hover:bg-slate-50" render={<button onClick={handlePrint} />}>
+            <Printer className="h-4 w-4 mr-2" />
+            PDF / Imprimir
+          </Button>
+
           <Button nativeButton={false} variant="outline" className="text-emerald-600 border-emerald-200 hover:bg-emerald-50" render={<a href={`https://wa.me/${ot.cliente.telefono}?text=${wappMessage}`} target="_blank" rel="noreferrer" />}>
             <MessageCircle className="h-4 w-4 mr-2" />
             WhatsApp
@@ -480,5 +551,6 @@ export default function OrdenDetail() {
         </div>
       </div>
     </div>
+    </>
   );
 }
