@@ -120,7 +120,7 @@ export default function OrdenDetail() {
 
   if (!ot) return <div className="p-8 text-center text-slate-500">Cargando detalles...</div>;
 
-  const wappMessage = encodeURIComponent(`Hola ${ot.cliente.nombre}, te contactamos de Yanky Taller sobre tu vehiculo ${ot.vehiculo.marca} placas ${ot.vehiculo.placas}.`);
+  const wappMessage = encodeURIComponent(`Hola ${ot.cliente?.nombre || 'Cliente'}, te contactamos de Yanky Taller sobre tu vehiculo ${ot.vehiculo?.marca || ''} placas ${ot.vehiculo?.placas || ''}.`);
 
   return (
     <>
@@ -135,15 +135,15 @@ export default function OrdenDetail() {
         <div className="grid grid-cols-2 gap-8 mb-8">
           <div>
             <h3 className="font-bold border-b border-slate-300 mb-2 pb-1">Datos del Cliente</h3>
-            <p className="text-sm"><strong>Nombre:</strong> {ot.cliente.nombre}</p>
-            <p className="text-sm"><strong>Teléfono:</strong> {ot.cliente.telefono}</p>
-            <p className="text-sm"><strong>Tipo:</strong> {ot.cliente.tipo}</p>
+            <p className="text-sm"><strong>Nombre:</strong> {ot.cliente?.nombre || 'Sin registrar'}</p>
+            <p className="text-sm"><strong>Teléfono:</strong> {ot.cliente?.telefono || 'Sin registrar'}</p>
+            <p className="text-sm"><strong>Tipo:</strong> {ot.cliente?.tipo || 'N/A'}</p>
           </div>
           <div>
             <h3 className="font-bold border-b border-slate-300 mb-2 pb-1">Datos del Vehículo</h3>
-            <p className="text-sm"><strong>Vehículo:</strong> {ot.vehiculo.marca} {ot.vehiculo.modelo} {ot.vehiculo.anio}</p>
-            <p className="text-sm"><strong>Color:</strong> {ot.vehiculo.color}</p>
-            <p className="text-sm"><strong>Placas:</strong> {ot.vehiculo.placas}</p>
+            <p className="text-sm"><strong>Vehículo:</strong> {ot.vehiculo?.marca} {ot.vehiculo?.modelo} {ot.vehiculo?.anio}</p>
+            <p className="text-sm"><strong>Color:</strong> {ot.vehiculo?.color || 'N/A'}</p>
+            <p className="text-sm"><strong>Placas:</strong> {ot.vehiculo?.placas || 'N/A'}</p>
             <p className="text-sm"><strong>Kilometraje:</strong> {ot.kilometraje?.toLocaleString() || "N/A"} km</p>
           </div>
         </div>
@@ -211,7 +211,7 @@ export default function OrdenDetail() {
             PDF / Imprimir
           </Button>
 
-          <Button nativeButton={false} variant="outline" className="text-emerald-600 border-emerald-200 hover:bg-emerald-50" render={<a href={`https://wa.me/${ot.cliente.telefono}?text=${wappMessage}`} target="_blank" rel="noreferrer" />}>
+          <Button nativeButton={false} variant="outline" className="text-emerald-600 border-emerald-200 hover:bg-emerald-50" render={<a href={`https://wa.me/${ot.cliente?.telefono}?text=${wappMessage}`} target="_blank" rel="noreferrer" />}>
             <MessageCircle className="h-4 w-4 mr-2" />
             WhatsApp
           </Button>
@@ -389,7 +389,7 @@ export default function OrdenDetail() {
                 <div className="space-y-4">
                   <p className="text-sm text-slate-600">Al terminar la reparación y finanzas, registra la salida del vehículo capturando fotos comprobatorias y la identidad de quien recibe el auto.</p>
                   <Dialog open={isEntregaOpen} onOpenChange={setIsEntregaOpen}>
-                    <Button onClick={() => setQuienRecibe(ot.cliente.nombre)} className="w-full md:w-auto bg-indigo-600 hover:bg-indigo-700 text-white" render={<DialogTrigger />}>
+                    <Button onClick={() => setQuienRecibe(ot.cliente?.nombre || '')} className="w-full md:w-auto bg-indigo-600 hover:bg-indigo-700 text-white" render={<DialogTrigger />}>
                       <Car className="w-4 h-4 mr-2" />
                       Dar Salida al Vehículo
                     </Button>
@@ -446,16 +446,16 @@ export default function OrdenDetail() {
             <CardContent className="pt-4 space-y-3">
               <div>
                  <span className="text-xs text-slate-500 block">Nombre</span>
-                 <p className="font-medium text-slate-900">{ot.cliente.nombre}</p>
+                 <p className="font-medium text-slate-900">{ot.cliente?.nombre || 'Sin registrar'}</p>
               </div>
               <div className="grid grid-cols-2 gap-2">
                 <div>
                   <span className="text-xs text-slate-500 block">Teléfono</span>
-                  <p className="text-sm text-slate-700">{ot.cliente.telefono}</p>
+                  <p className="text-sm text-slate-700">{ot.cliente?.telefono || 'N/A'}</p>
                 </div>
                 <div>
                   <span className="text-xs text-slate-500 block">Tipo</span>
-                  <Badge variant="outline" className="font-normal text-xs mt-0.5">{ot.cliente.tipo}</Badge>
+                  <Badge variant="outline" className="font-normal text-xs mt-0.5">{ot.cliente?.tipo || 'N/A'}</Badge>
                 </div>
               </div>
               <div>
@@ -475,22 +475,22 @@ export default function OrdenDetail() {
             <CardContent className="pt-4 space-y-3">
               <div>
                  <span className="text-xs text-slate-500 block">Vehículo</span>
-                 <p className="font-medium text-slate-900">{ot.vehiculo.marca} {ot.vehiculo.modelo}</p>
+                 <p className="font-medium text-slate-900">{ot.vehiculo?.marca} {ot.vehiculo?.modelo}</p>
               </div>
               <div className="grid grid-cols-2 gap-4">
                  <div>
                     <span className="text-xs text-slate-500 block">Año</span>
-                    <p className="text-sm text-slate-700">{ot.vehiculo.anio}</p>
+                    <p className="text-sm text-slate-700">{ot.vehiculo?.anio}</p>
                  </div>
                  <div>
                     <span className="text-xs text-slate-500 block">Color</span>
-                     <p className="text-sm text-slate-700">{ot.vehiculo.color}</p>
+                     <p className="text-sm text-slate-700">{ot.vehiculo?.color || 'N/A'}</p>
                  </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                  <div>
                     <span className="text-xs text-slate-500 block">Placas</span>
-                    <Badge variant="outline" className="font-mono text-xs bg-slate-50">{ot.vehiculo.placas}</Badge>
+                    <Badge variant="outline" className="font-mono text-xs bg-slate-50">{ot.vehiculo?.placas || 'N/A'}</Badge>
                  </div>
                  {ot.kilometraje && (
                    <div>

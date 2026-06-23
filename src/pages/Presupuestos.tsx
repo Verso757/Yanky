@@ -378,7 +378,7 @@ export default function Presupuestos() {
                 <TableCell className="text-sm text-slate-600">{p.creadoPorNombre || "Desconocido"}</TableCell>
                 <TableCell><Badge variant="outline" className="font-mono bg-slate-50">{p.placas}</Badge></TableCell>
                 <TableCell className="max-w-[200px] truncate block" title={p.descripcionDano}>{p.descripcionDano}</TableCell>
-                <TableCell className="font-medium text-slate-700">${(p.montoEstimado || 0).toFixed(2)}</TableCell>
+                <TableCell className="font-medium text-slate-700">${(Number(p.montoEstimado) || 0).toFixed(2)}</TableCell>
                 <TableCell>{getStatusBadge(p.estado)}</TableCell>
                 <TableCell className="text-right">
                   <Button variant="outline" size="sm" onClick={() => { setSelectedRow(p); setDetailsOpen(true); }} className="text-blue-600 border-blue-200 hover:bg-blue-50">
@@ -415,7 +415,7 @@ export default function Presupuestos() {
                 <p><strong>Daño:</strong> {p.descripcionDano}</p>
                 <p><strong>Creado Por:</strong> {p.creadoPorNombre || "Desconocido"}</p>
                 <p><strong>Fecha:</strong> {p.createdAt ? format(new Date(p.createdAt), "dd/MM/yyyy") : "--"}</p>
-                <p><strong>Monto:</strong> ${(p.montoEstimado || 0).toFixed(2)}</p>
+                <p><strong>Monto:</strong> ${(Number(p.montoEstimado) || 0).toFixed(2)}</p>
               </div>
 
               <div className="flex gap-2 justify-end pt-1">
@@ -455,7 +455,7 @@ export default function Presupuestos() {
                 <h3 className="font-semibold text-slate-800 border-b pb-2">Información del Daño</h3>
                 <div className="text-sm text-slate-600 space-y-1">
                   <p><strong>Descripción:</strong> {selectedRow?.descripcionDano}</p>
-                  <p><strong>Monto Estimado:</strong> ${(selectedRow?.montoEstimado || 0).toFixed(2)}</p>
+                  <p><strong>Monto Estimado:</strong> ${(Number(selectedRow?.montoEstimado) || 0).toFixed(2)}</p>
                   <p><strong>Fecha Creación:</strong> {selectedRow?.createdAt ? format(new Date(selectedRow.createdAt), "dd/MM/yyyy HH:mm") : "--"}</p>
                   <p><strong>Creado Por:</strong> {selectedRow?.creadoPorNombre || "Desconocido"}</p>
                 </div>
