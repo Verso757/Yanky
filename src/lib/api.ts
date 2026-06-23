@@ -408,7 +408,8 @@ async function processRoute(method: string, url: string, data: any) {
       clienteId,
       vehiculoId,
       descripcion: p.descripcionDano,
-      montoCotizado: p.montoEstimado,
+      montoCotizado: p.montoEstimado ? parseFloat(p.montoEstimado) : 0,
+      montoCobrado: 0,
       estado: "INGRESADO",
       createdAt: new Date().toISOString()
     };

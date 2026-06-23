@@ -170,8 +170,8 @@ export default function OrdenesList() {
                         {ot.estado?.replace("_", " ")}
                       </Badge>
                       <div className="text-xs mt-2 space-y-0.5">
-                        <div className="text-slate-500">Monto: <span className="font-medium text-slate-700">${ot.montoCotizado?.toFixed(2) || "0.00"}</span></div>
-                        <div className="text-slate-500">Saldo: <span className="font-medium text-red-600">${((ot.montoCotizado || 0) - (ot.montoCobrado || 0))?.toFixed(2) || "0.00"}</span></div>
+                        <div className="text-slate-500">Monto: <span className="font-medium text-slate-700">${(Number(ot.montoCotizado) || 0).toFixed(2)}</span></div>
+                        <div className="text-slate-500">Saldo: <span className="font-medium text-red-600">${((Number(ot.montoCotizado) || 0) - (Number(ot.montoCobrado) || 0)).toFixed(2)}</span></div>
                       </div>
                     </TableCell>
                     <TableCell>
@@ -243,14 +243,14 @@ export default function OrdenesList() {
                   </div>
                   <div className="text-right">
                     <div className="text-xs text-slate-500">Saldo Pendiente</div>
-                    <div className="font-bold text-red-600">${((ot.montoCotizado || 0) - (ot.montoCobrado || 0))?.toFixed(2) || "0.00"}</div>
+                    <div className="font-bold text-red-600">${((Number(ot.montoCotizado) || 0) - (Number(ot.montoCobrado) || 0)).toFixed(2)}</div>
                   </div>
                 </div>
 
                 <div className="flex items-center justify-between">
                   <div>
                     <div className="text-xs text-slate-500">Monto Total</div>
-                    <div className="font-bold text-slate-900">${ot.montoCotizado?.toFixed(2) || "0.00"}</div>
+                    <div className="font-bold text-slate-900">${(Number(ot.montoCotizado) || 0).toFixed(2)}</div>
                   </div>
                   <Link to={`/ordenes/${ot.id}`} className="flex-1 ml-4">
                     <Button variant="outline" className="w-full text-indigo-600 border-indigo-200 hover:bg-indigo-50">

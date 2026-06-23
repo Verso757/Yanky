@@ -167,9 +167,9 @@ export default function OrdenDetail() {
         <div className="mb-8 ml-auto w-1/2">
           <table className="w-full text-sm text-right border border-slate-200">
             <tbody>
-              <tr className="border-b border-slate-200"><td className="p-2 font-medium bg-slate-50 w-2/3">Cotización Base:</td><td className="p-2">${ot.montoCotizado?.toFixed(2)}</td></tr>
-              <tr className="border-b border-slate-200"><td className="p-2 font-medium bg-slate-50 w-2/3">Pagos / Abonos:</td><td className="p-2">${ot.montoCobrado?.toFixed(2)}</td></tr>
-              <tr><td className="p-2 font-bold bg-slate-100 w-2/3">Saldo Pendiente:</td><td className="p-2 font-bold">${((ot.montoCotizado || 0) - (ot.montoCobrado || 0)).toFixed(2)}</td></tr>
+              <tr className="border-b border-slate-200"><td className="p-2 font-medium bg-slate-50 w-2/3">Cotización Base:</td><td className="p-2">${(Number(ot.montoCotizado) || 0).toFixed(2)}</td></tr>
+              <tr className="border-b border-slate-200"><td className="p-2 font-medium bg-slate-50 w-2/3">Pagos / Abonos:</td><td className="p-2">${(Number(ot.montoCobrado) || 0).toFixed(2)}</td></tr>
+              <tr><td className="p-2 font-bold bg-slate-100 w-2/3">Saldo Pendiente:</td><td className="p-2 font-bold">${((Number(ot.montoCotizado) || 0) - (Number(ot.montoCobrado) || 0)).toFixed(2)}</td></tr>
             </tbody>
           </table>
         </div>
@@ -303,15 +303,15 @@ export default function OrdenDetail() {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                  <div className="bg-slate-50 p-4 rounded-lg border border-slate-100">
                     <span className="text-xs text-slate-500 font-medium uppercase tracking-wider block mb-1">Monto Cotizado</span>
-                    <span className="text-xl font-bold text-slate-900">${ot.montoCotizado.toFixed(2)}</span>
+                    <span className="text-xl font-bold text-slate-900">${(Number(ot.montoCotizado) || 0).toFixed(2)}</span>
                  </div>
                  <div className="bg-emerald-50 p-4 rounded-lg border border-emerald-100">
                     <span className="text-xs text-emerald-600 font-medium uppercase tracking-wider block mb-1">Pagos Recibidos</span>
-                    <span className="text-xl font-bold text-emerald-700">${ot.montoCobrado.toFixed(2)}</span>
+                    <span className="text-xl font-bold text-emerald-700">${(Number(ot.montoCobrado) || 0).toFixed(2)}</span>
                  </div>
                  <div className="bg-rose-50 p-4 rounded-lg border border-rose-100">
                     <span className="text-xs text-rose-600 font-medium uppercase tracking-wider block mb-1">Saldo Pendiente</span>
-                    <span className="text-xl font-bold text-rose-700">${(ot.montoCotizado - ot.montoCobrado).toFixed(2)}</span>
+                    <span className="text-xl font-bold text-rose-700">${((Number(ot.montoCotizado) || 0) - (Number(ot.montoCobrado) || 0)).toFixed(2)}</span>
                  </div>
               </div>
 
