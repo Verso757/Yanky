@@ -278,22 +278,33 @@ export default function Presupuestos() {
                   <div className="space-y-2">
                     <Label>Tomar Foto o Subir Imágenes</Label>
                     <div className="border-2 border-dashed border-slate-200 rounded-lg p-6 text-center hover:bg-slate-50 transition-colors">
-                      <div className="flex justify-center items-center mb-4">
-                        <Button variant="outline" onClick={() => document.getElementById('foto-upload')?.click()}>
+                      <div className="flex flex-col sm:flex-row justify-center items-center gap-3 mb-4">
+                        <Button type="button" variant="outline" onClick={() => document.getElementById('foto-capture')?.click()}>
                           <Camera className="w-4 h-4 mr-2" />
-                          Seleccionar o Tomar Foto(s)
+                          Tomar Foto
+                        </Button>
+                        <Input 
+                          id="foto-capture"
+                          type="file" 
+                          accept="image/*" 
+                          capture="environment"
+                          onChange={handleFileChange} 
+                          className="hidden"
+                        />
+                        <Button type="button" variant="outline" onClick={() => document.getElementById('foto-upload')?.click()}>
+                          <ImageIcon className="w-4 h-4 mr-2" />
+                          Subir Evidencia
                         </Button>
                         <Input 
                           id="foto-upload"
                           type="file" 
                           accept="image/*" 
-                          capture="environment"
                           multiple 
                           onChange={handleFileChange} 
                           className="hidden"
                         />
                       </div>
-                      <p className="text-xs text-slate-500 mb-4">Puedes tomar o seleccionar múltiples fotos del vehículo.</p>
+                      <p className="text-xs text-slate-500 mb-4">Puedes tomar una foto directamente o subir múltiples imágenes de la galería.</p>
                       
                       {fotos && fotos.length > 0 && (
                         <div className="border border-slate-200 rounded-md p-3 bg-white">
@@ -474,7 +485,7 @@ export default function Presupuestos() {
                 <Button variant="outline" className="text-red-600 hover:bg-red-50 hover:text-red-700 border-red-200" onClick={() => { setDetailsOpen(false); handleReject(selectedRow.id); }}>
                   <XCircle className="h-4 w-4 mr-2" /> Rechazar
                 </Button>
-                <Button className="bg-emerald-600 hover:bg-emerald-700 text-white" onClick={() => { setDetailsOpen(false); abrirFormalizar(selectedRow); }}>
+                <Button className="bg-emerald-600 hover:bg-emerald-700 text-white" onClick={() => { setDetailsOpen(false); setTimeout(() => abrirFormalizar(selectedRow), 300); }}>
                   <CheckCircle className="h-4 w-4 mr-2" /> Aprobar & Convertir a OT
                 </Button>
               </>
